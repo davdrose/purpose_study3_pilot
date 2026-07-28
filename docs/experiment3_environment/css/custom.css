@@ -1,0 +1,229 @@
+:root {
+  color-scheme: light;
+  --study-ink: #20242b;
+  --study-muted: #667085;
+  --study-border: #dfe3e8;
+  --study-surface: #ffffff;
+  --study-background: #f5f7fa;
+  --study-accent: #1f6feb;
+  --study-accent-dark: #1558bb;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  color: var(--study-ink);
+  background: var(--study-background);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.jspsych-display-element {
+  font-size: 18px;
+}
+
+#jspsych-content {
+  width: min(920px, calc(100% - 32px));
+  max-width: 920px;
+}
+
+.study-shell {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 34px 38px;
+  border: 1px solid var(--study-border);
+  border-radius: 18px;
+  background: var(--study-surface);
+  box-shadow: 0 18px 48px rgb(20 29 45 / 8%);
+  text-align: left;
+}
+
+.study-shell h1,
+.study-shell h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.study-shell p,
+.study-shell li {
+  line-height: 1.55;
+}
+
+.study-shell .study-lead {
+  color: var(--study-muted);
+  text-align: center;
+}
+
+.study-shell .study-notice {
+  padding: 14px 16px;
+  border-left: 4px solid var(--study-accent);
+  background: #f1f6ff;
+}
+
+.study-shell .study-warning {
+  padding: 14px 16px;
+  border-left: 4px solid #b54708;
+  background: #fff8eb;
+}
+
+.study-payload {
+  max-height: 360px;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--study-border);
+  border-radius: 10px;
+  background: #f8fafc;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.jspsych-btn {
+  min-width: 126px;
+  padding: 11px 18px;
+  border: 1px solid #c7ced8;
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--study-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.jspsych-btn:hover,
+.jspsych-btn:focus-visible {
+  border-color: var(--study-accent);
+  background: #f4f8ff;
+}
+
+.jspsych-btn-primary {
+  border-color: var(--study-accent);
+  background: var(--study-accent);
+  color: #ffffff;
+}
+
+.jspsych-btn-primary:hover,
+.jspsych-btn-primary:focus-visible {
+  border-color: var(--study-accent-dark);
+  background: var(--study-accent-dark);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 22px;
+}
+
+.form-field {
+  display: grid;
+  gap: 7px;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-field label,
+.question-label {
+  font-weight: 650;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #c7ced8;
+  border-radius: 9px;
+  background: #ffffff;
+  color: var(--study-ink);
+  font: inherit;
+}
+
+.radio-group {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0 22px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.recall-block {
+  text-align: left;
+}
+
+.recall-item {
+  padding-block: 18px;
+  border-bottom: 1px solid #d9dde3;
+}
+
+.recall-item:last-child {
+  border-bottom: 0;
+}
+
+body.purpose-task-active {
+  height: auto !important;
+  min-height: 100%;
+  overflow: visible;
+  background: #ffffff;
+}
+
+body.purpose-task-active #jspsych-content {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+body.purpose-task-active .jspsych-content-wrapper {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  margin: 0;
+}
+
+.purpose-task-frame {
+  display: block;
+  width: 100%;
+  height: 100vh;
+  border: 0;
+  background: #ffffff;
+}
+
+@media (max-height: 700px) {
+  .purpose-task-frame {
+    min-height: 820px;
+  }
+}
+
+#thanks {
+  width: min(720px, calc(100% - 32px));
+  margin: 18vh auto 0;
+  text-align: center;
+}
+
+#thanks:empty {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  #jspsych-content {
+    width: min(100% - 18px, 920px);
+  }
+
+  .study-shell {
+    padding: 24px 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field.full-width {
+    grid-column: auto;
+  }
+}

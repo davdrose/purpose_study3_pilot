@@ -1,0 +1,3921 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Animal Categorization Study</title>
+<style>:root {
+  color-scheme: light dark;
+  background-color: transparent !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --main-surface-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: light-dark(rgb(26 28 31), rgb(255 255 255));
+  --card: color-mix(in oklab, var(--foreground) 5%, transparent);
+  --card-foreground: var(--foreground);
+  --popover: light-dark(rgb(255 255 255), rgb(45 45 45));
+  --popover-foreground: var(--foreground);
+  --primary: light-dark(rgb(51 156 255), rgb(131 195 255));
+  --primary-foreground: light-dark(rgb(255 255 255), rgb(13 13 13));
+  --secondary: light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%));
+  --secondary-foreground: var(--foreground);
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: light-dark(
+    rgb(26 28 31 / 49.4%),
+    rgb(255 255 255 / 49.8%)
+  );
+  --accent: light-dark(rgb(229 242 255), rgb(13 39 63));
+  --accent-foreground: var(--primary);
+  --destructive: light-dark(rgb(226 85 7), rgb(255 133 73));
+  --border: light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%));
+  --input: light-dark(
+    rgb(26 28 31 / 11.8%),
+    color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+  );
+  --ring: light-dark(rgb(51 156 255), rgb(131 195 255 / 76%));
+  --font-size-base: 14px;
+  --red: light-dark(rgb(186 38 35), rgb(250 66 62));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --radius: 10px;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+  --color-background-primary: var(--background);
+  --color-text-primary: var(--foreground);
+  --color-border-secondary: var(--border);
+}
+
+:root[data-visualize-standalone] {
+  background-color: var(--background) !important;
+}
+
+/* Generic mobile code-block hosts provide light/dark mode but no series palette.
+   AppBlock hosts set all six variables themselves. */
+:root:not([data-app-block-surface]) {
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(#f3883b, #f59a56);
+  --viz-series-3: light-dark(#5dc977, #74d58b);
+  --viz-series-4: light-dark(#eb77b1, #f08fc0);
+  --viz-series-5: light-dark(#9b79ec, #aa91ef);
+  --viz-series-6: light-dark(#3ab9b1, #5acbc2);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  margin: 0;
+  padding: 5px;
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+:root:not([data-app-block-surface]) > body {
+  padding: 12px;
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget > :not(.card) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* The bundled tooltip runtime owns [data-tooltip]. AppBlock's CSS-only
+   pseudo-tooltip can widen dense grids even while hidden. */
+main [data-tooltip]::after {
+  content: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--interactive-label-primary-default, var(--primary-foreground));
+  background: var(--interactive-bg-primary-default, var(--foreground));
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(
+    in srgb,
+    var(--interactive-label-primary-default, var(--primary-foreground)) 50%,
+    transparent
+  );
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+    [aria-pressed="true"],
+    [aria-selected="true"],
+    .is-selected
+  ) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+</style>
+</head>
+<body>
+<div id="dynamic-scan-continuum-task">
+  <style>
+    #dynamic-scan-continuum-task {
+      color: var(--foreground);
+      display: grid;
+      gap: 16px;
+      text-align: center;
+      font-size: calc(var(--font-size-base) * 1.14);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-variant-numeric: tabular-nums;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #dynamic-scan-continuum-task [hidden] {
+      display: none !important;
+    }
+
+    #dynamic-scan-continuum-task .preview-bar,
+    #dynamic-scan-continuum-task .preview-options,
+    #dynamic-scan-continuum-task .screen-actions,
+    #dynamic-scan-continuum-task .species-heading,
+    #dynamic-scan-continuum-task .scan-status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #dynamic-scan-continuum-task .preview-bar,
+    #dynamic-scan-continuum-task .screen-actions,
+    #dynamic-scan-continuum-task .species-heading,
+    #dynamic-scan-continuum-task .scan-status-row {
+      justify-content: center;
+    }
+
+    #dynamic-scan-continuum-task .preview-bar {
+      margin-top: 12px;
+      padding-bottom: 6px;
+    }
+
+    #dynamic-scan-continuum-task .preview-setting {
+      display: grid;
+      gap: 5px;
+      justify-items: center;
+    }
+
+    #dynamic-scan-continuum-task .preview-panel {
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #dynamic-scan-continuum-task .preview-panel > summary {
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    #dynamic-scan-continuum-task .task-guide {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0;
+      padding: 0 0 12px;
+      margin: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #dynamic-scan-continuum-task .guide-step {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 3px 9px;
+      border-bottom: 2px solid transparent;
+      color: var(--muted-foreground);
+    }
+
+    #dynamic-scan-continuum-task .guide-step.is-current {
+      border-bottom-color: var(--primary);
+      font-weight: 500;
+      color: var(--foreground);
+    }
+
+    #dynamic-scan-continuum-task .intro-hero,
+    #dynamic-scan-continuum-task .screen-guide {
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      align-items: center;
+      gap: 14px;
+    }
+
+    #dynamic-scan-continuum-task .intro-hero {
+      width: min(100%, 640px);
+      justify-self: center;
+      padding: 24px;
+    }
+
+    #dynamic-scan-continuum-task .intro-hero .animal {
+      width: 112px;
+    }
+
+    #dynamic-scan-continuum-task .welcome-title,
+    #dynamic-scan-continuum-task .screen-title,
+    #dynamic-scan-continuum-task .content-title,
+    #dynamic-scan-continuum-task .decision-question {
+      margin: 0;
+      justify-self: center;
+      max-width: 680px;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+    }
+
+    #dynamic-scan-continuum-task .screen-lead {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    #dynamic-scan-continuum-task .screen-guide {
+      width: min(100%, 680px);
+      justify-self: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-block: 1px solid var(--border);
+    }
+
+    #dynamic-scan-continuum-task .instruction-step {
+      display: none;
+      min-height: 300px;
+      align-content: center;
+      justify-items: center;
+      gap: 16px;
+    }
+
+    #dynamic-scan-continuum-task .instruction-step.is-active {
+      display: grid;
+    }
+
+    #dynamic-scan-continuum-task .instruction-overview {
+      width: min(100%, 620px);
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px 22px;
+    }
+
+    #dynamic-scan-continuum-task .instruction-overview-item {
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      align-items: center;
+      gap: 10px;
+      padding-block: 10px;
+      text-align: center;
+    }
+
+    #dynamic-scan-continuum-task .instruction-tool {
+      width: min(100%, 520px);
+      display: grid;
+      justify-items: center;
+      gap: 14px;
+      padding: 24px;
+    }
+
+    #dynamic-scan-continuum-task .walkthrough-list {
+      list-style: none;
+      display: grid;
+      gap: 12px;
+      padding: 0;
+      margin: 0;
+    }
+
+    #dynamic-scan-continuum-task .walkthrough-step {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: start;
+      gap: 10px;
+    }
+
+    #dynamic-scan-continuum-task .walkthrough-step > div {
+      display: grid;
+      gap: 3px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen {
+      display: none;
+      width: 100%;
+      max-width: 760px;
+      justify-self: center;
+      gap: 16px;
+      padding-block: 2px 8px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen.is-active {
+      display: grid;
+      animation: dynamic-screen-enter 180ms ease-out both;
+    }
+
+    #dynamic-scan-continuum-task .study-screen > .viz-badge {
+      justify-self: center;
+    }
+
+    #dynamic-scan-continuum-task .scanner-explanation {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 14px;
+      padding: 15px;
+    }
+
+    #dynamic-scan-continuum-task .evidence-tools {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    #dynamic-scan-continuum-task .tool-explanation {
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+    }
+
+    #dynamic-scan-continuum-task .tool-action {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    #dynamic-scan-continuum-task .environment-card {
+      width: min(100%, 700px);
+      justify-self: center;
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: center;
+      justify-items: center;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    #dynamic-scan-continuum-task .environment-art {
+      width: min(100%, 420px);
+      min-height: 135px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    #dynamic-scan-continuum-task .environment-art svg {
+      width: 100%;
+      height: auto;
+      max-height: 150px;
+      color: var(--foreground);
+    }
+
+    #dynamic-scan-continuum-task .environment-art .land {
+      fill: color-mix(in srgb, var(--muted) 64%, transparent);
+      stroke: currentColor;
+      stroke-width: 1.6;
+    }
+
+    #dynamic-scan-continuum-task .environment-art .feature {
+      fill: color-mix(in srgb, var(--viz-series-1) 14%, transparent);
+      stroke: currentColor;
+      stroke-width: 1.6;
+    }
+
+    #dynamic-scan-continuum-task .environment-art .line {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    #dynamic-scan-continuum-task .test-environment-art {
+      position: relative;
+    }
+
+    #dynamic-scan-continuum-task .test-environment-art > div {
+      width: 100%;
+    }
+
+    #dynamic-scan-continuum-task .location-pin {
+      position: absolute;
+      top: 48%;
+      left: 52%;
+      width: 18px;
+      height: 18px;
+      transform: translate(-50%, -50%);
+      border-radius: 50% 50% 50% 0;
+      background: var(--foreground);
+      rotate: -45deg;
+    }
+
+    #dynamic-scan-continuum-task .location-pin::after {
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      top: 6px;
+      left: 6px;
+      border-radius: 50%;
+      background: var(--background);
+    }
+
+    #dynamic-scan-continuum-task .species-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    #dynamic-scan-continuum-task .single-species {
+      display: grid;
+      grid-template-columns: minmax(0, 700px);
+      justify-content: center;
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    #dynamic-scan-continuum-task .species-profile {
+      display: grid;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    #dynamic-scan-continuum-task .species-main {
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      gap: 14px;
+      align-items: center;
+    }
+
+    #dynamic-scan-continuum-task .animal {
+      width: 94px;
+      max-width: 100%;
+      height: auto;
+      color: var(--foreground);
+    }
+
+    #dynamic-scan-continuum-task .animal .body {
+      fill: color-mix(in srgb, var(--viz-series-1) 15%, transparent);
+      stroke: currentColor;
+      stroke-width: 1.8;
+    }
+
+    #dynamic-scan-continuum-task .animal .mark,
+    #dynamic-scan-continuum-task .animal .leg,
+    #dynamic-scan-continuum-task .animal .beak {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    #dynamic-scan-continuum-task .animal .eye {
+      fill: currentColor;
+    }
+
+    #dynamic-scan-continuum-task .scan-display {
+      display: grid;
+      gap: 6px;
+      min-height: 82px;
+    }
+
+    #dynamic-scan-continuum-task .reference-tools {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    #dynamic-scan-continuum-task .single-species .reference-tools .tool-action {
+      width: 100%;
+      min-height: 54px;
+    }
+
+    #dynamic-scan-continuum-task .single-species .species-main,
+    #dynamic-scan-continuum-task .single-species .species-main .reference-tools {
+      width: 100%;
+    }
+
+    #dynamic-scan-continuum-task .reference-results {
+      align-items: stretch;
+    }
+
+    #dynamic-scan-continuum-task .reference-result {
+      min-width: 0;
+      height: 100%;
+      display: grid;
+      grid-template-rows: 28px auto 1fr;
+      align-content: start;
+      gap: 9px;
+      padding-block: 12px;
+      border-block: 1px solid var(--border);
+      text-align: center;
+    }
+
+    #dynamic-scan-continuum-task .reference-result > strong {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #dynamic-scan-continuum-task .reference-result > span:last-child {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    #dynamic-scan-continuum-task .single-species .reference-result .scan-profile,
+    #dynamic-scan-continuum-task .single-species .reference-result .purpose-profile {
+      width: 100%;
+      padding-inline: 10px;
+    }
+
+    #dynamic-scan-continuum-task .single-species .reference-result .evidence-result-row {
+      min-height: 48px;
+      grid-template-columns: minmax(112px, .85fr) minmax(0, 1.15fr);
+    }
+
+    #dynamic-scan-continuum-task .reference-evidence-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    #dynamic-scan-continuum-task .compact-reference {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: start;
+      gap: 10px;
+      padding: 12px;
+    }
+
+    #dynamic-scan-continuum-task .compact-reference .animal {
+      width: 58px;
+    }
+
+    #dynamic-scan-continuum-task .compact-evidence {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    #dynamic-scan-continuum-task .compact-reference .compact-scan-evidence,
+    #dynamic-scan-continuum-task .compact-reference .compact-purpose-evidence {
+      grid-column: 1 / -1;
+    }
+
+    #dynamic-scan-continuum-task .compact-scan {
+      padding: 4px;
+      gap: 5px;
+    }
+
+    #dynamic-scan-continuum-task .scan-profile,
+    #dynamic-scan-continuum-task .purpose-profile {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 9px;
+      border-block: 1px solid var(--border);
+    }
+
+    #dynamic-scan-continuum-task .scan-profile.is-hidden {
+      grid-template-columns: 1fr;
+      place-items: center;
+      color: var(--muted-foreground);
+    }
+
+    #dynamic-scan-continuum-task .evidence-result-row {
+      min-width: 0;
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: minmax(112px, .85fr) minmax(0, 1.15fr);
+      align-items: center;
+      gap: 10px;
+      padding-block: 6px;
+    }
+
+    #dynamic-scan-continuum-task .evidence-result-row + .evidence-result-row {
+      border-top: 1px solid var(--border);
+    }
+
+    #dynamic-scan-continuum-task .evidence-result-label,
+    #dynamic-scan-continuum-task .evidence-result-value {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      text-align: center;
+    }
+
+    #dynamic-scan-continuum-task .evidence-result-label {
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+
+    #dynamic-scan-continuum-task .evidence-result-value {
+      font-weight: 500;
+    }
+
+    #dynamic-scan-continuum-task .evidence-result-track {
+      grid-column: 1 / -1;
+      display: block;
+      height: 5px;
+      overflow: hidden;
+      background: color-mix(in srgb, var(--foreground) 14%, transparent);
+      border-radius: 999px;
+    }
+
+    #dynamic-scan-continuum-task .evidence-result-bar {
+      display: block;
+      height: 100%;
+      background: var(--viz-series-1);
+      border-radius: inherit;
+      opacity: .88;
+      transform-origin: left;
+      animation: dynamic-profile-grow 520ms ease-out both;
+    }
+
+    #dynamic-scan-continuum-task .activity {
+      display: grid;
+      gap: 5px;
+      padding-top: 9px;
+      border-top: 1px solid var(--border);
+    }
+
+    #dynamic-scan-continuum-task .test-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    #dynamic-scan-continuum-task #sample-tray {
+      grid-column: 1 / -1;
+    }
+
+    #dynamic-scan-continuum-task .population-context {
+      width: min(100%, 680px);
+      justify-self: center;
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    #dynamic-scan-continuum-task .population-group {
+      width: 138px;
+      max-width: 100%;
+    }
+
+    #dynamic-scan-continuum-task .population-group .animal {
+      width: 138px;
+    }
+
+    #dynamic-scan-continuum-task #sample-home {
+      min-height: 86px;
+      display: grid;
+      place-items: center;
+    }
+
+    #dynamic-scan-continuum-task .representative-context {
+      width: min(100%, 680px);
+      justify-self: center;
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    #dynamic-scan-continuum-task .evidence-workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 620px);
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      justify-self: center;
+    }
+
+    #dynamic-scan-continuum-task .evidence-workspace.has-two-sources {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #dynamic-scan-continuum-task .evidence-workspace > .scanner,
+    #dynamic-scan-continuum-task .evidence-workspace > .purpose-station {
+      height: 100%;
+    }
+
+    #dynamic-scan-continuum-task .decision-context {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #dynamic-scan-continuum-task .decision-population-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    #dynamic-scan-continuum-task .aligned-population-card {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: 66px repeat(2, minmax(170px, 1fr));
+      gap: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    #dynamic-scan-continuum-task .decision-population-heading {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: auto auto;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      background: color-mix(in srgb, var(--muted) 46%, transparent);
+    }
+
+    #dynamic-scan-continuum-task .decision-population-heading .animal {
+      width: 44px;
+    }
+
+    #dynamic-scan-continuum-task .decision-population-name {
+      min-width: 0;
+      display: grid;
+      justify-items: center;
+      gap: 2px;
+    }
+
+    #dynamic-scan-continuum-task .decision-source-block {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      align-content: start;
+      gap: 5px;
+      padding: 7px;
+      border-top: 1px solid var(--border);
+    }
+
+    #dynamic-scan-continuum-task .decision-source-heading {
+      min-width: 0;
+      min-height: 32px;
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+    }
+
+    #dynamic-scan-continuum-task .decision-source-name {
+      min-width: 0;
+      display: grid;
+      justify-items: center;
+      gap: 2px;
+    }
+
+    #dynamic-scan-continuum-task .decision-source-block .scan-profile,
+    #dynamic-scan-continuum-task .decision-source-block .purpose-profile {
+      align-self: start;
+      width: 100%;
+      padding: 0;
+    }
+
+    #dynamic-scan-continuum-task .decision-source-block .evidence-result-row {
+      min-height: 46px;
+      grid-template-columns: minmax(68px, .85fr) minmax(0, 1.15fr);
+      grid-template-rows: minmax(28px, auto) 4px;
+      gap: 4px;
+      padding-block: 3px;
+    }
+
+    #dynamic-scan-continuum-task .decision-source-block .evidence-result-track {
+      height: 4px;
+    }
+
+    #dynamic-scan-continuum-task .reference-middle-placeholder {
+      display: none;
+      place-items: center;
+      align-content: center;
+      gap: 6px;
+      min-height: 100%;
+      color: var(--muted-foreground);
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid .evidence-result-row {
+      grid-template-columns: minmax(112px, .85fr) minmax(0, 1.15fr);
+      grid-template-rows: auto auto;
+      min-height: 48px;
+      gap: 10px;
+      padding-block: 6px;
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid .evidence-result-track {
+      height: 5px;
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid .aligned-population-card {
+      grid-template-rows: 56px auto auto;
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid .decision-population-heading {
+      padding: 3px 8px 8px;
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid .decision-population-heading .animal {
+      width: 34px;
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid .decision-source-block {
+      grid-template-rows: 20px auto;
+      gap: 2px;
+      padding: 0 18px;
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid .decision-source-heading {
+      min-height: 20px;
+    }
+
+    #dynamic-scan-continuum-task .reference-summary-grid .scan-profile,
+    #dynamic-scan-continuum-task .reference-summary-grid .purpose-profile {
+      padding: 9px;
+    }
+
+    #dynamic-scan-continuum-task .species-phase-heading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"],
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"],
+    #dynamic-scan-continuum-task .study-screen[data-screen="reference-summary"] {
+      gap: 10px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .screen-guide,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .screen-guide,
+    #dynamic-scan-continuum-task .study-screen[data-screen="reference-summary"] .screen-guide {
+      padding-block: 6px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="reference-summary"] .screen-guide {
+      display: none;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .species-profile,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .species-profile {
+      gap: 6px;
+      padding: 8px 18px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .species-main,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .species-main {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .species-main .animal,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .species-main .animal {
+      width: 80px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .reference-result,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .reference-result {
+      gap: 3px;
+      padding-block: 4px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .reference-result.is-complete,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .reference-result.is-complete {
+      grid-template-rows: 24px 208px 66px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .reference-result:not(.is-complete),
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .reference-result:not(.is-complete) {
+      grid-template-rows: 1fr;
+      place-items: center;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .reference-result.is-complete > span:last-child,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .reference-result.is-complete > span:last-child,
+    #dynamic-scan-continuum-task .study-screen[data-screen="test"] .scanner-result.is-complete > span:last-child,
+    #dynamic-scan-continuum-task .study-screen[data-screen="test"] .purpose-report.is-complete > span:last-child {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="test"] .scanner-result.is-complete,
+    #dynamic-scan-continuum-task .study-screen[data-screen="test"] .purpose-report.is-complete {
+      grid-template-rows: 28px 208px 66px;
+    }
+
+    #dynamic-scan-continuum-task .aligned-evidence-profile {
+      height: 208px;
+      grid-template-rows: 48px 70px 70px;
+    }
+
+    #dynamic-scan-continuum-task .aligned-evidence-profile .evidence-result-row {
+      height: auto;
+      min-height: 0;
+      grid-template-rows: minmax(28px, 1fr) 5px;
+      gap: 4px;
+      padding-block: 3px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .species-heading,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .species-heading {
+      min-height: 26px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .screen-actions,
+    #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .screen-actions,
+    #dynamic-scan-continuum-task .study-screen[data-screen="reference-summary"] .screen-actions {
+      padding-top: 0;
+    }
+
+    #dynamic-scan-continuum-task.is-decision-view {
+      gap: 6px;
+    }
+
+    #dynamic-scan-continuum-task.is-decision-view .preview-panel,
+    #dynamic-scan-continuum-task.is-decision-view .task-guide {
+      display: none;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="decision"] {
+      gap: 7px;
+      font-size: var(--font-size-base);
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .screen-guide {
+      padding-block: 5px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .continuum-section {
+      gap: 4px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .continuum {
+      min-height: 96px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .continuum-line {
+      top: 58px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .placement-token {
+      top: 5px;
+      width: 92px;
+    }
+
+    #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .placement-token .animal {
+      width: 46px;
+    }
+
+    #dynamic-scan-continuum-task .sample-card {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      cursor: grab;
+      text-align: center;
+    }
+
+    #dynamic-scan-continuum-task .sample-card:active {
+      cursor: grabbing;
+    }
+
+    #dynamic-scan-continuum-task .sample-card.is-selected {
+      box-shadow: 0 0 0 3px var(--ring);
+    }
+
+    #dynamic-scan-continuum-task .sample-main {
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #dynamic-scan-continuum-task #sample-home .sample-copy {
+      display: none;
+    }
+
+    #dynamic-scan-continuum-task .evidence-slot .sample-card {
+      width: min(100%, 178px);
+      z-index: 2;
+    }
+
+    #dynamic-scan-continuum-task .evidence-slot .sample-card .sample-copy {
+      display: none;
+    }
+
+    #dynamic-scan-continuum-task .evidence-slot .sample-card .sample-main {
+      grid-template-columns: 1fr;
+      justify-items: center;
+    }
+
+    #dynamic-scan-continuum-task .scanner {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      align-content: start;
+    }
+
+    #dynamic-scan-continuum-task .scanner-slot {
+      position: relative;
+      min-height: 160px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--muted) 34%, transparent);
+    }
+
+    #dynamic-scan-continuum-task .scanner-slot.is-over {
+      box-shadow: inset 0 0 0 3px var(--ring);
+    }
+
+    #dynamic-scan-continuum-task .scanner-beam {
+      position: absolute;
+      left: 4%;
+      right: 4%;
+      height: 3px;
+      top: 12%;
+      background: var(--viz-series-1);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    #dynamic-scan-continuum-task .scanner.is-scanning .scanner-beam {
+      opacity: 1;
+      animation: dynamic-scan-beam 1.1s ease-in-out;
+    }
+
+    #dynamic-scan-continuum-task .scanner-result,
+    #dynamic-scan-continuum-task .purpose-report {
+      display: grid;
+      align-content: start;
+      gap: 9px;
+      min-height: 83px;
+      justify-items: stretch;
+      padding: 12px 0 0;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    #dynamic-scan-continuum-task .purpose-slot {
+      isolation: isolate;
+    }
+
+    #dynamic-scan-continuum-task .sonar-rings {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    #dynamic-scan-continuum-task .sonar-rings span {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border: 2px solid var(--viz-series-1);
+      border-radius: 50%;
+      opacity: 0;
+    }
+
+    #dynamic-scan-continuum-task .purpose-station.is-scanning .sonar-rings span {
+      animation: dynamic-sonar-pulse .9s ease-out both;
+    }
+
+    #dynamic-scan-continuum-task .purpose-station.is-scanning .sonar-rings span:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    #dynamic-scan-continuum-task .purpose-station.is-scanning .sonar-rings span:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    #dynamic-scan-continuum-task .purpose-output {
+      display: grid;
+      gap: 7px;
+      justify-items: stretch;
+      width: 100%;
+    }
+
+    #dynamic-scan-continuum-task .continuum-section {
+      display: grid;
+      gap: 9px;
+    }
+
+    #dynamic-scan-continuum-task .continuum-labels {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: end;
+      gap: 8px;
+      padding-inline: 18px;
+    }
+
+    #dynamic-scan-continuum-task .continuum-labels span:first-child {
+      text-align: left;
+    }
+
+    #dynamic-scan-continuum-task .continuum-labels span:nth-child(2) {
+      text-align: center;
+    }
+
+    #dynamic-scan-continuum-task .continuum-labels span:last-child {
+      text-align: right;
+    }
+
+    #dynamic-scan-continuum-task .decision-question {
+      margin: 0;
+      justify-self: center;
+      text-align: center;
+    }
+
+    #dynamic-scan-continuum-task .continuum {
+      position: relative;
+      min-height: 158px;
+      padding-inline: 18px;
+      touch-action: none;
+      overflow: hidden;
+    }
+
+    #dynamic-scan-continuum-task .continuum-line {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      top: 89px;
+      height: 2px;
+      background: color-mix(in srgb, var(--foreground) 28%, transparent);
+    }
+
+    #dynamic-scan-continuum-task .continuum-line::before,
+    #dynamic-scan-continuum-task .continuum-line::after,
+    #dynamic-scan-continuum-task .continuum-midpoint {
+      content: "";
+      position: absolute;
+      top: -7px;
+      width: 2px;
+      height: 16px;
+      background: var(--foreground);
+    }
+
+    #dynamic-scan-continuum-task .continuum-line::before {
+      left: 0;
+    }
+
+    #dynamic-scan-continuum-task .continuum-line::after {
+      right: 0;
+    }
+
+    #dynamic-scan-continuum-task .continuum-midpoint {
+      left: 50%;
+      transform: translateX(-1px);
+    }
+
+    #dynamic-scan-continuum-task .placement-token {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 104px;
+      display: grid;
+      justify-items: center;
+      gap: 3px;
+      cursor: ew-resize;
+      touch-action: none;
+      z-index: 4;
+    }
+
+    #dynamic-scan-continuum-task .placement-token .animal {
+      width: 58px;
+    }
+
+    #dynamic-scan-continuum-task .placement-token:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    #dynamic-scan-continuum-task .placement-readout {
+      min-height: 1.4em;
+      text-align: center;
+    }
+
+    #dynamic-scan-continuum-task .completion {
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      text-align: center;
+      padding-block: 28px;
+    }
+
+    #dynamic-scan-continuum-task .intro-hero > div:last-child,
+    #dynamic-scan-continuum-task .environment-card > div:last-child,
+    #dynamic-scan-continuum-task .population-context > div:last-child,
+    #dynamic-scan-continuum-task .representative-context > div:first-child {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+    }
+
+    #dynamic-scan-continuum-task .intro-hero > div:last-child {
+      max-width: 560px;
+    }
+
+    #dynamic-scan-continuum-task .screen-actions {
+      min-height: 38px;
+      padding-top: 4px;
+    }
+
+    #dynamic-scan-continuum-task .species-heading,
+    #dynamic-scan-continuum-task .scan-status-row {
+      min-height: 30px;
+    }
+
+    #dynamic-scan-continuum-task .reference-result > strong,
+    #dynamic-scan-continuum-task .decision-source-heading strong,
+    #dynamic-scan-continuum-task .scan-status-row strong,
+    #dynamic-scan-continuum-task .species-heading strong {
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+
+    #dynamic-scan-continuum-task .decision-context {
+      padding-block: 2px;
+    }
+
+    #dynamic-scan-continuum-task .completion {
+      width: min(100%, 620px);
+      justify-self: center;
+    }
+
+    @keyframes dynamic-screen-enter {
+      from {
+        transform: translateY(4px);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes dynamic-scan-beam {
+      0% { top: 12%; }
+      50% { top: 82%; }
+      100% { top: 12%; }
+    }
+
+    @keyframes dynamic-sonar-pulse {
+      0% { transform: scale(.45); opacity: .9; }
+      100% { transform: scale(4.4); opacity: 0; }
+    }
+
+    @keyframes dynamic-profile-grow {
+      from { transform: scaleX(.12); opacity: .25; }
+      to { transform: scaleX(1); opacity: .88; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #dynamic-scan-continuum-task .study-screen.is-active,
+      #dynamic-scan-continuum-task .scanner.is-scanning .scanner-beam,
+      #dynamic-scan-continuum-task .purpose-station.is-scanning .sonar-rings span,
+      #dynamic-scan-continuum-task .evidence-result-bar {
+        animation: none;
+      }
+    }
+
+    @media (min-width: 651px) and (max-height: 680px) {
+      #dynamic-scan-continuum-task.is-decision-view {
+        gap: 3px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] {
+        gap: 3px;
+        font-size: 13px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-question {
+        font-size: 18px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-context {
+        gap: 4px;
+        padding-block: 0;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-population-grid {
+        gap: 6px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .aligned-population-card {
+        grid-template-rows: 48px repeat(2, minmax(128px, 1fr));
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-population-heading {
+        gap: 5px;
+        padding: 4px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-population-heading .animal {
+        width: 34px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-source-block {
+        gap: 2px;
+        padding: 3px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-source-heading {
+        min-height: 18px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-source-block .evidence-result-row {
+        min-height: 31px;
+        grid-template-rows: minmax(20px, auto) 3px;
+        gap: 2px;
+        padding-block: 1px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .decision-source-block .evidence-result-track {
+        height: 3px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .continuum-section {
+        gap: 2px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .continuum-labels {
+        padding-inline: 12px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .continuum {
+        min-height: 80px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .continuum-line {
+        top: 48px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .placement-token {
+        top: 2px;
+        width: 80px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .placement-token .animal {
+        width: 34px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="decision"] .screen-actions {
+        min-height: 28px;
+        padding-top: 0;
+      }
+    }
+
+    @media (max-width: 650px) {
+      #dynamic-scan-continuum-task .species-grid,
+      #dynamic-scan-continuum-task .test-grid,
+      #dynamic-scan-continuum-task .evidence-tools,
+      #dynamic-scan-continuum-task .environment-card,
+      #dynamic-scan-continuum-task .reference-evidence-strip,
+      #dynamic-scan-continuum-task .reference-summary-grid,
+      #dynamic-scan-continuum-task .compact-reference,
+      #dynamic-scan-continuum-task .population-context,
+      #dynamic-scan-continuum-task .representative-context,
+      #dynamic-scan-continuum-task .decision-population-grid,
+      #dynamic-scan-continuum-task .intro-hero {
+        grid-template-columns: 1fr;
+      }
+
+      #dynamic-scan-continuum-task .evidence-workspace.has-two-sources {
+        grid-template-columns: 1fr;
+      }
+
+      #dynamic-scan-continuum-task .task-guide {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #dynamic-scan-continuum-task .instruction-overview {
+        grid-template-columns: 1fr;
+      }
+
+      #dynamic-scan-continuum-task .population-group {
+        justify-self: center;
+      }
+
+      #dynamic-scan-continuum-task .intro-hero {
+        justify-items: center;
+        text-align: center;
+      }
+
+      #dynamic-scan-continuum-task .evidence-result-row {
+        grid-template-columns: 1fr;
+      }
+
+      #dynamic-scan-continuum-task .evidence-result-value {
+        text-align: center;
+      }
+
+      #dynamic-scan-continuum-task .evidence-result-track {
+        grid-column: 1;
+      }
+
+      #dynamic-scan-continuum-task .decision-source-block .evidence-result-row {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 4px;
+      }
+
+      #dynamic-scan-continuum-task .single-species .reference-result .evidence-result-row {
+        height: auto;
+        min-height: 104px;
+      }
+
+      #dynamic-scan-continuum-task .aligned-evidence-profile {
+        height: 330px;
+        grid-template-rows: repeat(3, 104px);
+      }
+
+      #dynamic-scan-continuum-task .aligned-evidence-profile .evidence-result-row {
+        height: 104px;
+        min-height: 104px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="learn-rellin"] .reference-result.is-complete,
+      #dynamic-scan-continuum-task .study-screen[data-screen="learn-daxon"] .reference-result.is-complete {
+        grid-template-rows: 24px 330px 66px;
+      }
+
+      #dynamic-scan-continuum-task .study-screen[data-screen="test"] .scanner-result.is-complete,
+      #dynamic-scan-continuum-task .study-screen[data-screen="test"] .purpose-report.is-complete {
+        grid-template-rows: 28px 330px 66px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      #dynamic-scan-continuum-task .reference-tools {
+        grid-template-columns: 1fr;
+      }
+
+      #dynamic-scan-continuum-task .intro-hero,
+      #dynamic-scan-continuum-task .instruction-tool,
+      #dynamic-scan-continuum-task .environment-card,
+      #dynamic-scan-continuum-task .population-context,
+      #dynamic-scan-continuum-task .representative-context,
+      #dynamic-scan-continuum-task .species-profile {
+        padding: 16px;
+      }
+
+      #dynamic-scan-continuum-task .screen-guide {
+        padding-inline: 8px;
+      }
+    }
+  </style>
+
+  <details class="preview-panel" hidden>
+    <summary>Researcher preview controls</summary>
+    <div class="preview-bar">
+      <div>
+        <span class="viz-badge">Researcher preview only</span>
+        <span class="text-small text-muted">Set the trial before beginning. These controls would not appear to participants.</span>
+      </div>
+    <div class="preview-setting">
+      <span class="text-small text-muted">Test exemplar</span>
+      <div class="preview-options" aria-label="Choose test combination">
+        <button type="button" class="btn btn-primary condition-button" data-profile="rellin" data-purpose="rellin">R scan + R purpose</button>
+        <button type="button" class="btn condition-button" data-profile="rellin" data-purpose="daxon">R scan + D purpose</button>
+        <button type="button" class="btn condition-button" data-profile="daxon" data-purpose="rellin">D scan + R purpose</button>
+        <button type="button" class="btn condition-button" data-profile="daxon" data-purpose="daxon">D scan + D purpose</button>
+      </div>
+    </div>
+    <div class="preview-setting">
+      <span class="text-small text-muted">Scanner availability</span>
+      <div class="preview-options" aria-label="Choose scanner availability">
+        <button type="button" class="btn btn-primary availability-button" data-scanner-available="true">Scanner available</button>
+        <button type="button" class="btn availability-button" data-scanner-available="false">Scanner unavailable</button>
+      </div>
+    </div>
+    <div class="preview-setting">
+      <span class="text-small text-muted">Trial world</span>
+      <div class="preview-options" aria-label="Choose trial world">
+        <button type="button" class="btn btn-primary environment-button" data-environment="woodland">Woodland</button>
+        <button type="button" class="btn environment-button" data-environment="grassland">Grassland</button>
+        <button type="button" class="btn environment-button" data-environment="marsh">Marsh</button>
+      </div>
+    </div>
+    <div class="preview-setting">
+      <span class="text-small text-muted">Evidence order throughout task (counterbalanced)</span>
+      <div class="preview-options" aria-label="Choose evidence order throughout the task">
+        <button type="button" class="btn btn-primary order-button" data-evidence-order="scan-first">Biological scan first</button>
+        <button type="button" class="btn order-button" data-evidence-order="purpose-first">Purpose scan first</button>
+      </div>
+    </div>
+    </div>
+  </details>
+
+  <ol class="task-guide" aria-label="Task progress">
+    <li class="guide-step is-current" data-guide-step="instructions" aria-current="step"><span class="viz-badge">1</span><span>Instructions</span></li>
+    <li class="guide-step" data-guide-step="region"><span class="viz-badge">2</span><span>Region</span></li>
+    <li class="guide-step" data-guide-step="species"><span class="viz-badge">3</span><span>Species</span></li>
+    <li class="guide-step" data-guide-step="population"><span class="viz-badge">4</span><span>Population</span></li>
+    <li class="guide-step" data-guide-step="evidence"><span class="viz-badge">5</span><span>Evidence</span></li>
+    <li class="guide-step" data-guide-step="categorize"><span class="viz-badge">6</span><span>Categorize</span></li>
+  </ol>
+
+  <section class="study-screen is-active" data-screen="intro">
+    <h1 class="welcome-title">Welcome</h1>
+    <p class="screen-lead">Rellins and Daxons look very similar to one another. You will learn about these two unfamiliar known species and then categorize a newly discovered population that also looks very similar to them.</p>
+
+    <div class="card intro-hero">
+      <div id="intro-animal"></div>
+      <div>
+        <strong>Your task</strong>
+        <div>First, learn what the two known species are like. Next, gather two kinds of evidence about a new population. Finally, decide where that population belongs between the two species.</div>
+      </div>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" class="btn btn-primary" data-go-screen="instructions">See how the task works</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="instructions">
+    <span class="viz-badge">Instructions</span>
+    <h2 class="screen-title">The task will be introduced one part at a time.</h2>
+
+    <div class="instruction-step is-active" data-instruction-step="0">
+      <h3 class="content-title">Here is what will happen.</h3>
+      <div class="instruction-overview">
+        <div class="instruction-overview-item">
+          <span class="viz-badge">1</span>
+          <div><strong>First, you will be introduced to a new location.</strong></div>
+        </div>
+        <div class="instruction-overview-item">
+          <span class="viz-badge">2</span>
+          <div><strong>Next, you will meet two unfamiliar known species that live there.</strong></div>
+        </div>
+        <div class="instruction-overview-item">
+          <span class="viz-badge">3</span>
+          <div><strong>Then, you will meet a newly discovered population from the same location.</strong></div>
+        </div>
+        <div class="instruction-overview-item">
+          <span class="viz-badge">4</span>
+          <div><strong>Finally, you will scan a sample animal and decide where the population belongs.</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="instruction-step" data-instruction-step="1" data-evidence-kind="scan">
+      <div class="card instruction-tool">
+        <strong>Biological scan</strong>
+        <div>The biological scan examines animals.</div>
+        <div>It reports three internal findings: genome, development, and body systems.</div>
+      </div>
+    </div>
+
+    <div class="instruction-step" data-instruction-step="2" data-evidence-kind="purpose">
+      <div class="card instruction-tool">
+        <strong>Purpose scan</strong>
+        <div>The purpose scan examines animals.</div>
+        <div>It reports what the animals are for, how that benefits the animals, and the broader environmental benefit.</div>
+      </div>
+    </div>
+
+    <div class="instruction-step" data-instruction-step="3">
+      <h3 class="content-title">How you will use the scanners</h3>
+      <div class="card instruction-tool">
+        <div id="instruction-animal"></div>
+        <div>Move the sample animal to the scanner shown on the screen.</div>
+        <div>You may drag the animal, or select it and then select the scanner. Both scan results will remain visible when you make your categorization judgment.</div>
+      </div>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" id="instruction-back-button" class="btn btn-ghost">Back</button>
+      <span id="instruction-step-counter" class="text-muted">1 of 4</span>
+      <button type="button" id="instruction-next-button" class="btn btn-primary">Continue</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="world">
+    <span class="viz-badge">Learning phase · 1 of 4</span>
+    <h2 class="screen-title">First, learn about the region where the animals live.</h2>
+
+    <div class="screen-guide">
+      <span class="viz-badge">Step 2</span>
+      <div>Review the shared region below, then select “Meet the first species.”</div>
+    </div>
+
+    <div class="card environment-card">
+      <div id="environment-art" class="environment-art"></div>
+      <div>
+        <span class="viz-badge">Shared region</span>
+        <strong id="environment-title"></strong>
+        <div id="environment-copy"></div>
+      </div>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" class="btn btn-ghost" data-go-screen="instructions">Review instructions</button>
+      <span class="text-muted">The known species will be introduced one at a time.</span>
+      <button type="button" id="meet-first-species" class="btn btn-primary" data-go-screen="learn-rellin">Meet the first species</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="learn-rellin">
+    <div class="species-phase-heading">
+      <span id="rellin-phase-label" class="viz-badge">Learning phase · 2 of 4</span>
+      <h2 id="rellin-learning-title" class="screen-title">Reveal both sources of information about Rellins.</h2>
+    </div>
+
+    <div class="screen-guide">
+      <span class="viz-badge">Step 3</span>
+      <div id="rellin-learning-guide-copy">Use both scanners before continuing.</div>
+    </div>
+
+    <div class="single-species">
+      <div class="card species-profile">
+        <div class="species-heading"><span id="rellin-species-number" class="viz-badge">Species 1</span><strong>Rellins</strong></div>
+        <div class="species-main">
+          <div class="reference-animal"></div>
+          <div class="reference-tools">
+            <button type="button" class="btn tool-action scan-reference-button" data-evidence-kind="scan" data-reference-profile="rellin">Run Rellin biological scan</button>
+            <button type="button" class="btn tool-action reveal-reference-purpose" data-evidence-kind="purpose" data-reference-purpose="rellin">Run Rellin purpose scan</button>
+          </div>
+        </div>
+        <div class="reference-tools reference-results">
+          <div class="reference-result text-muted" data-evidence-kind="scan" data-reference-result="rellin">Biological scan not yet run</div>
+          <div class="reference-result text-muted" data-evidence-kind="purpose" data-purpose-result="rellin">Purpose scan not yet run</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" id="rellin-back-button" class="btn btn-ghost" data-go-screen="world">Review region</button>
+      <span id="rellin-learning-progress" class="text-muted">Complete both Rellin scans to continue.</span>
+      <button type="button" id="rellin-continue-button" class="btn btn-primary" data-go-screen="learn-daxon" disabled>Meet the second species</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="learn-daxon">
+    <div class="species-phase-heading">
+      <span id="daxon-phase-label" class="viz-badge">Learning phase · 3 of 4</span>
+      <h2 id="daxon-learning-title" class="screen-title">Now reveal both sources of information about Daxons.</h2>
+    </div>
+
+    <div class="screen-guide">
+      <span class="viz-badge">Step 3</span>
+      <div id="daxon-learning-guide-copy">As before, reveal both sources. Notice the information itself; the task will not interpret it for you.</div>
+    </div>
+
+    <div class="single-species">
+      <div class="card species-profile">
+        <div class="species-heading"><span id="daxon-species-number" class="viz-badge">Species 2</span><strong>Daxons</strong></div>
+        <div class="species-main">
+          <div class="reference-animal"></div>
+          <div class="reference-tools">
+            <button type="button" class="btn tool-action scan-reference-button" data-evidence-kind="scan" data-reference-profile="daxon">Run Daxon biological scan</button>
+            <button type="button" class="btn tool-action reveal-reference-purpose" data-evidence-kind="purpose" data-reference-purpose="daxon">Run Daxon purpose scan</button>
+          </div>
+        </div>
+        <div class="reference-tools reference-results">
+          <div class="reference-result text-muted" data-evidence-kind="scan" data-reference-result="daxon">Biological scan not yet run</div>
+          <div class="reference-result text-muted" data-evidence-kind="purpose" data-purpose-result="daxon">Purpose scan not yet run</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" id="daxon-back-button" class="btn btn-ghost" data-go-screen="learn-rellin">Review Rellins</button>
+      <span id="daxon-learning-progress" class="text-muted">Complete both Daxon scans to continue.</span>
+      <button type="button" id="daxon-continue-button" class="btn btn-primary" data-go-screen="reference-summary" disabled>Compare the species</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="reference-summary">
+    <div class="species-phase-heading">
+      <span class="viz-badge">Learning phase · 4 of 4</span>
+    <h2 class="screen-title">Review both known species together.</h2>
+    </div>
+
+    <div class="screen-guide">
+      <span class="viz-badge">Step 3</span>
+      <div id="reference-summary-guide-copy">Compare the biological and purpose scans for Rellins and Daxons. You will see these results again during categorization.</div>
+    </div>
+
+    <div class="reference-summary-grid" aria-label="Known species summary">
+      <article class="card aligned-population-card" data-summary-species="rellin">
+        <div class="decision-population-heading">
+          <div id="summary-rellin-animal"></div>
+          <div class="decision-population-name">
+            <span class="viz-badge" data-summary-species-number="rellin">Species 1</span>
+            <strong>Rellins</strong>
+          </div>
+        </div>
+        <section class="decision-source-block" data-summary-kind="scan">
+          <div class="decision-source-heading">
+            <strong>Biological scan</strong>
+          </div>
+          <div id="summary-rellin-scan" class="scan-profile compact-scan aligned-evidence-profile" aria-label="Complete biological scan for Rellins"></div>
+        </section>
+        <section class="decision-source-block" data-summary-kind="purpose">
+          <div class="decision-source-heading">
+            <strong>Purpose scan</strong>
+          </div>
+          <div id="summary-rellin-purpose" class="purpose-profile compact-scan aligned-evidence-profile" aria-label="Complete purpose scan for Rellins"></div>
+        </section>
+      </article>
+
+      <div class="reference-middle-placeholder" aria-label="A new population will later appear in this middle position">
+        <span class="viz-badge">Next</span>
+        <strong>New population</strong>
+        <span>Its evidence will appear here.</span>
+      </div>
+
+      <article class="card aligned-population-card" data-summary-species="daxon">
+        <div class="decision-population-heading">
+          <div id="summary-daxon-animal"></div>
+          <div class="decision-population-name">
+            <span class="viz-badge" data-summary-species-number="daxon">Species 2</span>
+            <strong>Daxons</strong>
+          </div>
+        </div>
+        <section class="decision-source-block" data-summary-kind="scan">
+          <div class="decision-source-heading">
+            <strong>Biological scan</strong>
+          </div>
+          <div id="summary-daxon-scan" class="scan-profile compact-scan aligned-evidence-profile" aria-label="Complete biological scan for Daxons"></div>
+        </section>
+        <section class="decision-source-block" data-summary-kind="purpose">
+          <div class="decision-source-heading">
+            <strong>Purpose scan</strong>
+          </div>
+          <div id="summary-daxon-purpose" class="purpose-profile compact-scan aligned-evidence-profile" aria-label="Complete purpose scan for Daxons"></div>
+        </section>
+      </article>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" id="reference-summary-back-button" class="btn btn-ghost" data-go-screen="learn-daxon">Review Daxons</button>
+      <button type="button" class="btn btn-primary" data-go-screen="population">Study a new population</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="population">
+    <span class="viz-badge">Test trial · population introduction</span>
+    <h2 class="screen-title">Biologists have discovered a new population in the same shared region. It also looks very similar to Rellins and Daxons.</h2>
+
+    <div class="screen-guide">
+      <span class="viz-badge">Step 4</span>
+      <div>Review where the population was found and what the sample animal stands for. Then begin gathering evidence.</div>
+    </div>
+
+    <div class="card environment-card">
+      <div class="environment-art test-environment-art">
+        <div id="population-environment-svg"></div>
+        <span class="location-pin" aria-hidden="true"></span>
+      </div>
+      <div>
+        <span class="viz-badge">New population found</span>
+        <strong id="test-location-title"></strong>
+        <div id="test-location-copy"></div>
+      </div>
+    </div>
+
+    <div class="card population-context">
+      <div id="population-group" class="population-group"></div>
+      <div>
+        <span class="viz-badge">What “population sample” means</span>
+        <strong>The new population contains many animals like these.</strong>
+        <div>Biologists studied many members of the population. On the next screen, one movable animal will represent a typical member. Both scans summarize findings about the population, not only that individual.</div>
+      </div>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" class="btn btn-ghost" data-go-screen="reference-summary">Review known species</button>
+      <button type="button" class="btn btn-primary" data-go-screen="test">Study the sample animal</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="test">
+    <span class="viz-badge">Evidence gathering</span>
+    <h2 id="evidence-step-copy" class="screen-title">Complete the first evidence source.</h2>
+
+    <div id="evidence-task-guide" class="screen-guide">
+      <span class="viz-badge">Step 5</span>
+      <div>Move the sample animal to the station currently shown. You may drag it, or click the animal and then click the station.</div>
+    </div>
+
+    <div id="representative-context" class="card representative-context">
+      <div>
+        <span class="viz-badge">Sample animal</span>
+        <strong>This animal represents a typical member of the new population.</strong>
+        <div>Move it to the evidence station shown below. When that result is recorded, the next station will appear.</div>
+      </div>
+      <div id="sample-home">
+        <button type="button" id="sample-card" class="btn viz-tile sample-card" draggable="true" aria-label="Sample animal from the new population. Move it to the evidence station shown below.">
+          <div class="sample-main">
+            <div id="sample-animal"></div>
+            <div class="sample-copy">
+              <strong>Sample animal</strong>
+              <div class="text-muted">Move this animal to the station below.</div>
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div id="evidence-workspace" class="evidence-workspace" aria-live="polite">
+      <div id="test-scanner" class="card scanner" data-evidence-kind="scan" hidden>
+        <div class="scan-status-row">
+          <strong>Biological scan</strong>
+          <span id="scanner-availability-label" class="viz-badge">Available</span>
+        </div>
+        <div id="scanner-slot" class="scanner-slot evidence-slot">
+          <span id="scanner-slot-hint" class="text-muted">Move the sample animal here</span>
+          <span class="scanner-beam" aria-hidden="true"></span>
+        </div>
+        <button type="button" id="run-scan-button" class="btn btn-primary tool-action" disabled>
+          <span class="tool-action-label">Run biological scan</span>
+        </button>
+        <div id="scanner-result" class="scanner-result" aria-live="polite">
+          <span class="text-muted">No scan result yet</span>
+        </div>
+      </div>
+
+      <div id="test-purpose" class="card scanner purpose-station" data-evidence-kind="purpose" hidden>
+        <div class="scan-status-row">
+          <strong>Purpose scan</strong>
+          <span id="purpose-availability-label" class="viz-badge">Available</span>
+        </div>
+        <div id="purpose-slot" class="scanner-slot purpose-slot evidence-slot">
+          <span id="purpose-slot-hint" class="text-muted">Move the sample animal here</span>
+          <span class="sonar-rings" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+        </div>
+        <button type="button" id="run-purpose-button" class="btn btn-primary tool-action" disabled>
+          <span class="tool-action-label">Run purpose scan</span>
+        </button>
+        <div id="purpose-report" class="purpose-report" aria-live="polite">
+          <span class="text-muted">No purpose scan yet</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" class="btn btn-ghost" data-go-screen="population">Review the population</button>
+      <button type="button" id="start-decision-button" class="btn btn-primary" data-go-screen="decision" disabled>Compare and categorize</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="decision">
+    <span class="viz-badge">Categorization decision</span>
+    <h2 class="decision-question">Where does this new population belong?</h2>
+
+    <div class="decision-context">
+      <span class="viz-badge">Shared region</span>
+      <strong id="decision-location-title"></strong>
+      <span id="decision-location-copy" class="text-small"></span>
+    </div>
+
+    <div class="decision-population-grid" aria-label="Aligned biological and purpose evidence for Rellins, the new population, and Daxons">
+      <article class="card aligned-population-card decision-population-card">
+        <div class="decision-population-heading">
+          <div id="decision-rellin-animal"></div>
+          <div class="decision-population-name">
+            <span class="viz-badge">Known species</span>
+            <strong>Rellins</strong>
+          </div>
+        </div>
+        <section class="decision-source-block" data-decision-kind="scan">
+          <div class="decision-source-heading">
+            <div class="decision-source-name">
+              <strong>Biological scan</strong>
+            </div>
+          </div>
+          <div id="decision-rellin-scan" class="scan-profile compact-scan" aria-label="Complete Rellin biological scan"></div>
+        </section>
+        <section class="decision-source-block" data-decision-kind="purpose">
+          <div class="decision-source-heading">
+            <div class="decision-source-name">
+              <strong>Purpose scan</strong>
+            </div>
+          </div>
+          <div id="decision-rellin-purpose" class="purpose-profile compact-scan" aria-label="Complete Rellin purpose scan"></div>
+        </section>
+      </article>
+
+      <article class="card aligned-population-card decision-population-card">
+        <div class="decision-population-heading">
+          <div id="decision-new-animal"></div>
+          <div class="decision-population-name">
+            <span class="viz-badge">To categorize</span>
+            <strong>New population</strong>
+          </div>
+        </div>
+        <section class="decision-source-block" data-decision-kind="scan">
+          <div class="decision-source-heading">
+            <div class="decision-source-name">
+              <strong>Biological scan</strong>
+            </div>
+          </div>
+          <div id="decision-new-scan" class="scan-profile compact-scan" aria-label="Complete biological scan of the new population"></div>
+        </section>
+        <section class="decision-source-block" data-decision-kind="purpose">
+          <div class="decision-source-heading">
+            <div class="decision-source-name">
+              <strong>Purpose scan</strong>
+            </div>
+          </div>
+          <div id="decision-new-purpose" class="purpose-profile compact-scan" aria-label="Complete purpose scan for the new population"></div>
+        </section>
+      </article>
+
+      <article class="card aligned-population-card decision-population-card">
+        <div class="decision-population-heading">
+          <div id="decision-daxon-animal"></div>
+          <div class="decision-population-name">
+            <span class="viz-badge">Known species</span>
+            <strong>Daxons</strong>
+          </div>
+        </div>
+        <section class="decision-source-block" data-decision-kind="scan">
+          <div class="decision-source-heading">
+            <div class="decision-source-name">
+              <strong>Biological scan</strong>
+            </div>
+          </div>
+          <div id="decision-daxon-scan" class="scan-profile compact-scan" aria-label="Complete Daxon biological scan"></div>
+        </section>
+        <section class="decision-source-block" data-decision-kind="purpose">
+          <div class="decision-source-heading">
+            <div class="decision-source-name">
+              <strong>Purpose scan</strong>
+            </div>
+          </div>
+          <div id="decision-daxon-purpose" class="purpose-profile compact-scan" aria-label="Complete Daxon purpose scan"></div>
+        </section>
+      </article>
+    </div>
+
+    <div class="continuum-section">
+      <div class="continuum-labels">
+        <span>Definitely Rellins</span>
+        <span class="text-small text-muted">Equally between</span>
+        <span>Definitely Daxons</span>
+      </div>
+      <div id="species-continuum" class="card continuum" aria-label="Species classification continuum">
+        <div class="continuum-line"><span class="continuum-midpoint"></span></div>
+        <button type="button" id="placement-token" class="btn viz-tile placement-token" role="slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-label="Position of new population between Rellins and Daxons" disabled>
+          <span id="placement-animal"></span>
+          <span class="text-small">New population</span>
+        </button>
+      </div>
+      <div id="placement-readout" class="placement-readout text-small text-muted">Move the population along the continuum.</div>
+    </div>
+
+    <div class="screen-actions">
+      <button type="button" class="btn btn-ghost" data-go-screen="test">Review evidence gathering</button>
+      <button type="button" id="record-placement-button" class="btn btn-primary" disabled>Record placement</button>
+    </div>
+  </section>
+
+  <section class="study-screen" data-screen="complete">
+    <div class="completion">
+      <span class="viz-badge">Placement recorded</span>
+      <h2 id="completion-copy" class="screen-title"></h2>
+      <span class="text-muted">Your response has been recorded.</span>
+      <button type="button" class="btn btn-primary" data-restart>Restart demonstration</button>
+    </div>
+  </section>
+
+	  <script src="../js/stimuli.js"></script>
+	  <script>
+    (() => {
+      const root = document.getElementById("dynamic-scan-continuum-task");
+      if (!root) return;
+
+	      const params = new URLSearchParams(window.location.search);
+	      const stimuli = window.PURPOSE_STIMULI;
+	      if (!stimuli) return;
+	      const animalKeys = stimuli.animalOrder;
+      const allowedValue = (name, allowed, fallback) => {
+        const value = params.get(name);
+        return allowed.includes(value) ? value : fallback;
+      };
+      let currentScreen = "intro";
+      let decisionShownAt = null;
+      const logEvent = () => {};
+
+		      const state = {
+		        profile: allowedValue("bio_profile", animalKeys, "rellin"),
+			        featureType: allowedValue("feature_type", ["purpose", "environmental_exposure"], "purpose"),
+		        purpose: allowedValue("feature_profile", animalKeys, "rellin"),
+	        animalA: allowedValue("animal_a", animalKeys, "rellin"),
+	        animalB: allowedValue("animal_b", animalKeys, "daxon"),
+	        leftSpecies: allowedValue("left_species", animalKeys, "rellin"),
+	        rightSpecies: allowedValue("right_species", animalKeys, "daxon"),
+	        scannerAvailable: true,
+	        environment: allowedValue("environment", ["woodland", "grassland", "marsh"], "woodland"),
+	        evidenceOrder: allowedValue("evidence_order", ["scan-first", "purpose-first"], "scan-first"),
+	        endpointOrder: allowedValue("endpoint_order", ["a-left", "b-left"], "a-left"),
+	        conditionCell: allowedValue("condition_cell", ["AA", "AB", "BA", "BB"], "AA"),
+	        matchingScheduleId: params.get("matching_schedule_id") || "unspecified",
+	        itemPair: params.get("item_pair") || "rellin_daxon",
+	        trialNumber: Number(params.get("trial_number")) || 1,
+	        firstIntroducedSpecies: allowedValue("first_introduced_species", animalKeys, "rellin"),
+	        canonicalZeroSpecies: allowedValue("canonical_zero_species", animalKeys, "rellin"),
+	        canonicalHundredSpecies: allowedValue("canonical_hundred_species", animalKeys, "daxon"),
+	        showInstructions: params.get("show_instructions") === "true",
+	        assignmentId: params.get("assignment_id") || "unspecified",
+        instructionStep: 0,
+        evidenceSequence: [],
+        evidenceStepIndex: 0,
+        completedEvidence: new Set(),
+        scannedReferences: new Set(),
+        revealedReferencePurposes: new Set(),
+        sampleInScanner: false,
+        sampleInPurpose: false,
+        sampleScanned: false,
+        purposeRevealed: false,
+        sampleSelected: false,
+        placement: 50,
+        placementMoved: false,
+        testInitialized: false,
+        draggingSample: false,
+        draggingToken: false
+      };
+
+      const scanDimensions = [
+        { key: "genome", label: "Genome" },
+        { key: "development", label: "Development" },
+        { key: "body", label: "Body systems" }
+      ];
+
+	      const scanPatterns = Object.fromEntries(
+	        animalKeys.map((animal) => [animal, stimuli.animals[animal].scan])
+	      );
+
+		      const purposeDimensions = state.featureType === "environmental_exposure"
+		        ? [
+		            { key: "exposureSignature", label: "Environmental exposure" },
+		            { key: "atmosphericParticles", label: "Atmospheric particles" },
+		            { key: "mineralResidue", label: "Mineral residue" }
+	          ]
+	        : [
+	            { key: "purpose", label: "Purpose" },
+	            { key: "animalBenefit", label: "Benefit to animal" },
+	            { key: "environmentBenefit", label: "Environmental benefit" }
+	          ];
+
+	      const purposeProfiles = Object.fromEntries(
+	        animalKeys.map((animal) => [animal, stimuli.animals[animal][state.featureType]])
+	      );
+
+		      const featureScanLabel = state.featureType === "environmental_exposure"
+		        ? "Environmental exposure"
+		        : "Purpose scan";
+		      const featureScanLower = featureScanLabel.toLowerCase();
+		      const featureScannerLower = state.featureType === "environmental_exposure"
+		        ? "environmental exposure scanner"
+		        : "purpose scanner";
+		      const featureProfileLabel = state.featureType === "environmental_exposure"
+		        ? "environmental exposure profile"
+		        : "purpose profile";
+
+	      const environmentData = stimuli.environments;
+
+      const environmentSvg = (environment) => {
+        if (environment === "grassland") {
+          return `
+            <svg viewBox="0 0 320 145" role="img" aria-label="Open flowering grassland">
+              <path class="land" d="M5 102Q78 70 150 101T315 92V140H5Z"></path>
+              <path class="line" d="M18 119v-28M18 100l-9-8M18 104l10-9M53 128v-31M53 108l-9-10M53 113l11-12M265 122v-34M265 99l-11-9M265 105l13-12"></path>
+              <circle class="feature" cx="18" cy="88" r="6"></circle><circle class="feature" cx="53" cy="93" r="6"></circle><circle class="feature" cx="265" cy="84" r="6"></circle>
+              <path class="line" d="M110 113q8-12 16 0q8-12 16 0M180 116q8-12 16 0q8-12 16 0"></path>
+            </svg>
+          `;
+        }
+        if (environment === "marsh") {
+          return `
+            <svg viewBox="0 0 320 145" role="img" aria-label="Flowering marshland">
+              <path class="land" d="M5 105Q70 94 132 105T255 105T315 105V140H5Z"></path>
+              <path class="line" d="M8 94q25-13 50 0t50 0t50 0t50 0t50 0t50 0"></path>
+              <path class="line" d="M40 114V65M40 78l-12-13M40 83l13-14M91 120V71M91 87l-11-12M91 94l12-14M270 117V68M270 82l-12-12M270 90l13-15"></path>
+              <circle class="feature" cx="40" cy="61" r="6"></circle><circle class="feature" cx="91" cy="67" r="6"></circle><circle class="feature" cx="270" cy="64" r="6"></circle>
+              <path class="line" d="M205 100v-49M220 101V58M235 102V48M250 101V61"></path>
+            </svg>
+          `;
+        }
+        return `
+          <svg viewBox="0 0 320 145" role="img" aria-label="Flowering woodland">
+            <path class="land" d="M5 112Q82 89 158 108T315 103V140H5Z"></path>
+            <rect class="feature" x="44" y="38" width="24" height="80" rx="7"></rect>
+            <circle class="feature" cx="56" cy="35" r="29"></circle>
+            <rect class="feature" x="245" y="30" width="25" height="88" rx="7"></rect>
+            <circle class="feature" cx="257" cy="34" r="30"></circle>
+            <path class="line" d="M120 120V84M120 96l-11-11M120 102l12-14M194 124V88M194 100l-10-11M194 106l12-13"></path>
+            <circle class="feature" cx="120" cy="80" r="6"></circle><circle class="feature" cx="194" cy="84" r="6"></circle>
+          </svg>
+        `;
+      };
+
+      const animalSvg = () => `
+        <svg class="animal" viewBox="0 0 96 62" role="img" aria-label="Small striped animal">
+          <ellipse class="body" cx="42" cy="35" rx="28" ry="17"></ellipse>
+          <circle class="body" cx="68" cy="27" r="11"></circle>
+          <path class="mark" d="M27 20v27M39 17v34M51 19v29"></path>
+          <circle class="eye" cx="71" cy="24" r="2"></circle>
+          <path class="beak" d="M78 27l12 3l-12 2"></path>
+          <path class="leg" d="M31 49l-3 9M52 49l3 9"></path>
+        </svg>
+      `;
+
+      const populationSvg = () => `
+        <svg class="animal" viewBox="0 0 150 78" role="img" aria-label="Several similar members of the newly discovered population">
+          <g transform="translate(0 17) scale(.72)">
+            <ellipse class="body" cx="42" cy="35" rx="28" ry="17"></ellipse>
+            <circle class="body" cx="68" cy="27" r="11"></circle>
+            <path class="mark" d="M27 20v27M39 17v34M51 19v29"></path>
+            <circle class="eye" cx="71" cy="24" r="2"></circle>
+            <path class="beak" d="M78 27l12 3l-12 2"></path>
+            <path class="leg" d="M31 49l-3 9M52 49l3 9"></path>
+          </g>
+          <g transform="translate(48 0) scale(.72)">
+            <ellipse class="body" cx="42" cy="35" rx="28" ry="17"></ellipse>
+            <circle class="body" cx="68" cy="27" r="11"></circle>
+            <path class="mark" d="M27 20v27M39 17v34M51 19v29"></path>
+            <circle class="eye" cx="71" cy="24" r="2"></circle>
+            <path class="beak" d="M78 27l12 3l-12 2"></path>
+            <path class="leg" d="M31 49l-3 9M52 49l3 9"></path>
+          </g>
+          <g transform="translate(83 20) scale(.72)">
+            <ellipse class="body" cx="42" cy="35" rx="28" ry="17"></ellipse>
+            <circle class="body" cx="68" cy="27" r="11"></circle>
+            <path class="mark" d="M27 20v27M39 17v34M51 19v29"></path>
+            <circle class="eye" cx="71" cy="24" r="2"></circle>
+            <path class="beak" d="M78 27l12 3l-12 2"></path>
+            <path class="leg" d="M31 49l-3 9M52 49l3 9"></path>
+          </g>
+        </svg>
+      `;
+
+      const evidenceResultMarkup = (label, result, compact = false) => `
+        <div class="evidence-result-row">
+          <span class="evidence-result-label${compact ? " text-small" : ""}">${label}</span>
+          <span class="evidence-result-value${compact ? " text-small" : ""}">${result.value}</span>
+          <span class="evidence-result-track" aria-hidden="true">
+            <span class="evidence-result-bar" style="width: ${result.width}%"></span>
+          </span>
+        </div>
+      `;
+
+      const scanMarkup = (profile, compact = false) => scanDimensions
+        .map((dimension) => evidenceResultMarkup(dimension.label, scanPatterns[profile][dimension.key], compact))
+        .join("");
+
+	      const purposeMarkup = (profile, compact = false) => purposeDimensions
+	        .map((dimension) => evidenceResultMarkup(dimension.label, purposeProfiles[profile][dimension.key], compact))
+	        .join("");
+
+	      const renderReferenceAnimals = () => {
+	        root.querySelectorAll(".reference-animal").forEach((container) => {
+	          container.innerHTML = animalSvg();
+	        });
+	        root.querySelector("#intro-animal").innerHTML = animalSvg();
+	        root.querySelector("#instruction-animal").innerHTML = animalSvg();
+	      };
+
+		      const pluralName = (animal) => stimuli.animals[animal].plural;
+		      const singularName = (animal) => stimuli.animals[animal].singular;
+
+	      const applyFeatureTerminology = () => {
+	        const instruction = root.querySelector('[data-screen="instructions"] [data-evidence-kind="purpose"] .instruction-tool');
+	        const instructionLines = instruction.querySelectorAll("div");
+	        instruction.querySelector("strong").textContent = featureScanLabel;
+		        instructionLines[0].textContent = state.featureType === "environmental_exposure"
+		          ? "The environmental exposure scanner examines animals."
+		          : `The ${featureScanLower} examines animals.`;
+		        instructionLines[1].textContent = state.featureType === "environmental_exposure"
+		          ? "This scan detects tiny traces an animal has picked up from the place where it has recently been living."
+		          : "It reports what the animals are for, how that benefits the animals, and the broader environmental benefit.";
+
+	        root.querySelector('[data-evidence-order="purpose-first"]').textContent = `${featureScanLabel} first`;
+	        root.querySelectorAll('[data-summary-kind="purpose"] .decision-source-heading strong').forEach((heading) => {
+	          heading.textContent = featureScanLabel;
+	        });
+	        root.querySelectorAll('[data-decision-kind="purpose"] .decision-source-heading strong').forEach((heading) => {
+	          heading.textContent = featureScanLabel;
+	        });
+	        root.querySelector("#test-purpose .scan-status-row strong").textContent = featureScanLabel;
+	        root.querySelector("#run-purpose-button .tool-action-label").textContent = `Run ${featureScanLower}`;
+	        root.querySelector("#purpose-report").innerHTML = `<span class="text-muted">No ${featureScanLower} yet</span>`;
+	        root.querySelector("#decision-new-purpose").setAttribute(
+	          "aria-label",
+	          `Complete ${featureScanLower} for the new population`
+	        );
+	        root.querySelectorAll("[data-purpose-result]").forEach((result) => {
+	          if (!result.classList.contains("is-complete")) {
+	            result.textContent = `${featureScanLabel} not yet run`;
+	          }
+	        });
+
+	        root.querySelectorAll(".condition-button").forEach((button) => {
+	          button.textContent = button.textContent.replace(
+	            /purpose$/i,
+	            state.featureType === "environmental_exposure" ? "environmental exposure" : "purpose"
+	          );
+	        });
+	      };
+
+	      const evidenceKindsInOrder = () => state.evidenceOrder === "purpose-first"
+        ? ["purpose", "scan"]
+        : ["scan", "purpose"];
+
+	      const appendEvidencePair = (container, scanElement, purposeElement) => {
+        if (!container || !scanElement || !purposeElement) return;
+        const elementsByKind = { scan: scanElement, purpose: purposeElement };
+        container.append(...evidenceKindsInOrder().map((kind) => elementsByKind[kind]));
+      };
+
+      const applyGlobalEvidenceOrder = () => {
+        const purposeFirst = state.evidenceOrder === "purpose-first";
+        const instructionScreen = root.querySelector('[data-screen="instructions"]');
+        const scanInstruction = instructionScreen.querySelector('[data-evidence-kind="scan"]');
+        const purposeInstruction = instructionScreen.querySelector('[data-evidence-kind="purpose"]');
+        const finalInstruction = instructionScreen.querySelector('[data-instruction-step="3"]');
+        const instructionByKind = { scan: scanInstruction, purpose: purposeInstruction };
+        const orderedInstructions = evidenceKindsInOrder().map((kind) => instructionByKind[kind]);
+        finalInstruction.before(...orderedInstructions);
+        [...instructionScreen.querySelectorAll("[data-instruction-step]")].forEach((step, index) => {
+          step.dataset.instructionStep = String(index);
+        });
+
+        root.querySelectorAll(".single-species").forEach((species) => {
+          const buttonRow = species.querySelector(".species-main .reference-tools");
+          appendEvidencePair(
+            buttonRow,
+            buttonRow.querySelector('[data-evidence-kind="scan"]'),
+            buttonRow.querySelector('[data-evidence-kind="purpose"]')
+          );
+
+          const resultRow = species.querySelector(".reference-results");
+          appendEvidencePair(
+            resultRow,
+            resultRow.querySelector('[data-evidence-kind="scan"]'),
+            resultRow.querySelector('[data-evidence-kind="purpose"]')
+          );
+        });
+
+        const evidenceWorkspace = root.querySelector("#evidence-workspace");
+        appendEvidencePair(
+          evidenceWorkspace,
+          root.querySelector("#test-scanner"),
+          root.querySelector("#test-purpose")
+        );
+
+        root.querySelectorAll(".reference-summary-grid .aligned-population-card").forEach((card) => {
+          appendEvidencePair(
+            card,
+            card.querySelector('[data-summary-kind="scan"]'),
+            card.querySelector('[data-summary-kind="purpose"]')
+          );
+        });
+
+        root.querySelectorAll(".decision-population-card").forEach((card) => {
+          appendEvidencePair(
+            card,
+            card.querySelector('[data-decision-kind="scan"]'),
+            card.querySelector('[data-decision-kind="purpose"]')
+          );
+        });
+
+		        root.querySelector("#reference-summary-guide-copy").textContent = purposeFirst
+		          ? `Compare the ${featureScanLower} and biological scan for ${pluralName(state.leftSpecies)} and ${pluralName(state.rightSpecies)}. You will see these results again during categorization.`
+		          : `Compare the biological and ${featureScanLower} for ${pluralName(state.leftSpecies)} and ${pluralName(state.rightSpecies)}. You will see these results again during categorization.`;
+		        root.querySelector(".decision-population-grid").setAttribute(
+		          "aria-label",
+		          purposeFirst
+		            ? `Aligned ${featureScanLower} and biological evidence for ${pluralName(state.leftSpecies)}, the new population, and ${pluralName(state.rightSpecies)}`
+		            : `Aligned biological and ${featureScanLower} evidence for ${pluralName(state.leftSpecies)}, the new population, and ${pluralName(state.rightSpecies)}`
+		        );
+	      };
+
+	      const applyReferenceOrder = () => {
+	        const leftName = pluralName(state.leftSpecies);
+	        const rightName = pluralName(state.rightSpecies);
+	        root.querySelector("#meet-first-species").dataset.goScreen = "learn-rellin";
+
+	        root.querySelector("#rellin-phase-label").textContent = "Learning phase · 2 of 4";
+	        root.querySelector("#rellin-learning-title").textContent = `Reveal both sources of information about ${leftName}.`;
+	        root.querySelector("#rellin-species-number").textContent = "Species 1";
+	        root.querySelector("#rellin-learning-guide-copy").textContent = "Use both scanners before continuing.";
+	        root.querySelector("#rellin-back-button").dataset.goScreen = "world";
+	        root.querySelector("#rellin-back-button").textContent = "Review region";
+	        root.querySelector("#rellin-continue-button").dataset.goScreen = "learn-daxon";
+	        root.querySelector("#rellin-continue-button").textContent = "Meet the second species";
+
+	        root.querySelector("#daxon-phase-label").textContent = "Learning phase · 3 of 4";
+	        root.querySelector("#daxon-learning-title").textContent = `Now reveal both sources of information about ${rightName}.`;
+	        root.querySelector("#daxon-species-number").textContent = "Species 2";
+	        root.querySelector("#daxon-learning-guide-copy").textContent = "As before, reveal both sources. Notice the information itself; the task will not interpret it for you.";
+	        root.querySelector("#daxon-back-button").dataset.goScreen = "learn-rellin";
+	        root.querySelector("#daxon-back-button").textContent = `Review ${leftName}`;
+	        root.querySelector("#daxon-continue-button").dataset.goScreen = "reference-summary";
+	        root.querySelector("#daxon-continue-button").textContent = "Compare the species";
+
+	        const summaryBack = root.querySelector("#reference-summary-back-button");
+	        summaryBack.dataset.goScreen = "learn-daxon";
+	        summaryBack.textContent = `Review ${rightName}`;
+	      };
+
+	      const hydrateSpeciesText = () => {
+	        const leftName = pluralName(state.leftSpecies);
+	        const rightName = pluralName(state.rightSpecies);
+	        const pairText = `${leftName} and ${rightName}`;
+
+	        root.querySelector('[data-screen="intro"] .screen-lead').textContent =
+	          `${leftName} and ${rightName} look very similar to one another. You will learn about these two unfamiliar known species and then categorize a newly discovered population that also looks very similar to them.`;
+
+	        const leftScreen = root.querySelector('[data-screen="learn-rellin"]');
+	        const rightScreen = root.querySelector('[data-screen="learn-daxon"]');
+	        leftScreen.querySelector(".species-heading strong").textContent = leftName;
+	        rightScreen.querySelector(".species-heading strong").textContent = rightName;
+
+	        const leftScanButton = leftScreen.querySelector(".scan-reference-button");
+	        const leftPurposeButton = leftScreen.querySelector(".reveal-reference-purpose");
+	        const rightScanButton = rightScreen.querySelector(".scan-reference-button");
+	        const rightPurposeButton = rightScreen.querySelector(".reveal-reference-purpose");
+	        leftScanButton.dataset.referenceProfile = state.leftSpecies;
+	        leftPurposeButton.dataset.referencePurpose = state.leftSpecies;
+	        rightScanButton.dataset.referenceProfile = state.rightSpecies;
+		        rightPurposeButton.dataset.referencePurpose = state.rightSpecies;
+		        leftScanButton.textContent = `Run ${singularName(state.leftSpecies)} biological scan`;
+		        leftPurposeButton.textContent = `Run ${singularName(state.leftSpecies)} ${featureScanLower}`;
+		        rightScanButton.textContent = `Run ${singularName(state.rightSpecies)} biological scan`;
+		        rightPurposeButton.textContent = `Run ${singularName(state.rightSpecies)} ${featureScanLower}`;
+
+	        leftScreen.querySelector("[data-reference-result]").dataset.referenceResult = state.leftSpecies;
+	        leftScreen.querySelector("[data-purpose-result]").dataset.purposeResult = state.leftSpecies;
+	        rightScreen.querySelector("[data-reference-result]").dataset.referenceResult = state.rightSpecies;
+	        rightScreen.querySelector("[data-purpose-result]").dataset.purposeResult = state.rightSpecies;
+
+	        const summaryCards = root.querySelectorAll(".reference-summary-grid .aligned-population-card");
+	        summaryCards[0].querySelector(".decision-population-name strong").textContent = leftName;
+		        summaryCards[1].querySelector(".decision-population-name strong").textContent = rightName;
+		        root.querySelector("#summary-rellin-scan").setAttribute("aria-label", `Complete biological scan for ${leftName}`);
+		        root.querySelector("#summary-rellin-purpose").setAttribute("aria-label", `Complete ${featureScanLower} for ${leftName}`);
+		        root.querySelector("#summary-daxon-scan").setAttribute("aria-label", `Complete biological scan for ${rightName}`);
+		        root.querySelector("#summary-daxon-purpose").setAttribute("aria-label", `Complete ${featureScanLower} for ${rightName}`);
+
+	        root.querySelector('[data-screen="population"] .screen-title').textContent =
+	          `Biologists have discovered a new population in the same shared region. It also looks very similar to ${pairText}.`;
+
+	        const decisionCards = root.querySelectorAll(".decision-population-grid .decision-population-card");
+	        decisionCards[0].querySelector(".decision-population-name strong").textContent = leftName;
+		        decisionCards[2].querySelector(".decision-population-name strong").textContent = rightName;
+		        root.querySelector("#decision-rellin-scan").setAttribute("aria-label", `Complete biological scan for ${leftName}`);
+		        root.querySelector("#decision-rellin-purpose").setAttribute("aria-label", `Complete ${featureScanLower} for ${leftName}`);
+		        root.querySelector("#decision-daxon-scan").setAttribute("aria-label", `Complete biological scan for ${rightName}`);
+		        root.querySelector("#decision-daxon-purpose").setAttribute("aria-label", `Complete ${featureScanLower} for ${rightName}`);
+	        root.querySelector("#placement-token").setAttribute(
+	          "aria-label",
+	          `Position of new population between ${leftName} and ${rightName}`
+	        );
+
+	        if (!state.showInstructions) {
+	          root.querySelector('[data-guide-step="instructions"]').hidden = true;
+	          root.querySelector('[data-screen="world"] [data-go-screen="instructions"]').hidden = true;
+	        }
+	      };
+
+      const renderInstructionStep = () => {
+        const steps = [...root.querySelectorAll("[data-instruction-step]")];
+        steps.forEach((step) => {
+          step.classList.toggle("is-active", Number(step.dataset.instructionStep) === state.instructionStep);
+        });
+        root.querySelector("#instruction-step-counter").textContent = `${state.instructionStep + 1} of ${steps.length}`;
+        root.querySelector("#instruction-next-button").textContent = state.instructionStep === steps.length - 1
+          ? "Begin the task"
+          : "Continue";
+      };
+
+	      const renderEnvironment = () => {
+	        const environment = environmentData[state.environment];
+	        const leftName = pluralName(state.leftSpecies);
+	        const rightName = pluralName(state.rightSpecies);
+	        root.querySelector("#environment-art").innerHTML = environmentSvg(state.environment);
+	        root.querySelector("#environment-title").textContent = environment.title;
+	        root.querySelector("#environment-copy").textContent =
+	          `${leftName} and ${rightName} were both discovered throughout this same connected ${environment.habitat}. Both species encounter its ${environment.features}.`;
+
+	        root.querySelector("#population-environment-svg").innerHTML = environmentSvg(state.environment);
+	        root.querySelector("#test-location-title").textContent = environment.title;
+	        root.querySelector("#test-location-copy").textContent =
+	          `The new population was found within this same connected region. ${leftName} and ${rightName} are both found throughout it.`;
+	        root.querySelector("#decision-location-title").textContent = environment.title;
+	        root.querySelector("#decision-location-copy").textContent = "All three populations were observed here.";
+      };
+
+      const scanReference = (profile) => {
+        const repeated = state.scannedReferences.has(profile);
+        state.scannedReferences.add(profile);
+        logEvent("reference_biological_scan", {
+          species: profile,
+          repeated
+        });
+        const result = root.querySelector(`[data-reference-result="${profile}"]`);
+        result.classList.remove("text-muted");
+        result.classList.add("is-complete");
+        result.innerHTML = `
+          <strong>Complete biological scan</strong>
+          <div class="scan-profile aligned-evidence-profile" aria-label="Complete biological scan for the known species">${scanMarkup(profile)}</div>
+          <span>Biologists found this same biological profile across many sampled members of the species.</span>
+	        `;
+	        const button = root.querySelector(`[data-reference-profile="${profile}"]`);
+	        button.textContent = `Run ${singularName(profile)} biological scan again`;
+
+        updateLearningProgress();
+      };
+
+      const revealReferencePurpose = (profile) => {
+        const repeated = state.revealedReferencePurposes.has(profile);
+        state.revealedReferencePurposes.add(profile);
+        logEvent("reference_purpose_scan", {
+          species: profile,
+          repeated
+        });
+        const result = root.querySelector(`[data-purpose-result="${profile}"]`);
+        result.classList.remove("text-muted");
+		        result.classList.add("is-complete");
+		        result.innerHTML = `
+		          <strong>Complete ${featureScanLower}</strong>
+		          <div class="purpose-profile aligned-evidence-profile" aria-label="Complete ${featureScanLower} for the known species">${purposeMarkup(profile)}</div>
+		          <span>Biologists found this same ${featureProfileLabel} across many sampled members of the species.</span>
+		        `;
+		        const button = root.querySelector(`[data-reference-purpose="${profile}"]`);
+		        const repeatScanLabel = state.featureType === "environmental_exposure"
+		          ? "environmental scan"
+		          : featureScanLower;
+		        button.textContent = `Run ${singularName(profile)} ${repeatScanLabel} again`;
+	        updateLearningProgress();
+	      };
+
+	      const updateReferenceEvidenceControls = (profile) => {
+	        const firstKind = evidenceKindsInOrder()[0];
+	        const secondKind = evidenceKindsInOrder()[1];
+	        const completedByKind = {
+	          scan: state.scannedReferences.has(profile),
+	          purpose: state.revealedReferencePurposes.has(profile)
+	        };
+	        const buttonByKind = {
+	          scan: root.querySelector(`[data-reference-profile="${profile}"]`),
+	          purpose: root.querySelector(`[data-reference-purpose="${profile}"]`)
+	        };
+	        buttonByKind[firstKind].disabled = false;
+	        buttonByKind[secondKind].disabled = !completedByKind[firstKind];
+	      };
+
+	      const updateLearningProgress = () => {
+	        const leftComplete = state.scannedReferences.has(state.leftSpecies) &&
+	          state.revealedReferencePurposes.has(state.leftSpecies);
+	        const rightComplete = state.scannedReferences.has(state.rightSpecies) &&
+	          state.revealedReferencePurposes.has(state.rightSpecies);
+	        updateReferenceEvidenceControls(state.leftSpecies);
+	        updateReferenceEvidenceControls(state.rightSpecies);
+
+	        root.querySelector("#rellin-continue-button").disabled = !leftComplete;
+	        root.querySelector("#rellin-learning-progress").textContent = leftComplete
+	          ? `Both ${singularName(state.leftSpecies)} scans are complete.`
+	          : `Complete both ${singularName(state.leftSpecies)} scans to continue.`;
+
+	        root.querySelector("#daxon-continue-button").disabled = !rightComplete;
+	        root.querySelector("#daxon-learning-progress").textContent = rightComplete
+	          ? `Both ${singularName(state.rightSpecies)} scans are complete.`
+	          : `Complete both ${singularName(state.rightSpecies)} scans to continue.`;
+      };
+
+      root.querySelectorAll(".scan-reference-button").forEach((button) => {
+        button.addEventListener("click", () => scanReference(button.dataset.referenceProfile));
+      });
+
+      root.querySelectorAll(".reveal-reference-purpose").forEach((button) => {
+        button.addEventListener("click", () => revealReferencePurpose(button.dataset.referencePurpose));
+      });
+
+      const renderSample = () => {
+        root.querySelector("#population-group").innerHTML = populationSvg();
+        root.querySelector("#sample-animal").innerHTML = animalSvg();
+        root.querySelector("#placement-animal").innerHTML = animalSvg();
+      };
+
+	      const applyEndpointOrder = () => {
+	        const grid = root.querySelector(".decision-population-grid");
+	        const leftCard = root.querySelector("#decision-rellin-animal").closest(".decision-population-card");
+	        const newCard = root.querySelector("#decision-new-animal").closest(".decision-population-card");
+	        const rightCard = root.querySelector("#decision-daxon-animal").closest(".decision-population-card");
+	        const labels = root.querySelectorAll(".continuum-labels > span");
+	        grid.append(leftCard, newCard, rightCard);
+	        labels[0].textContent = `Definitely ${pluralName(state.leftSpecies)}`;
+	        labels[2].textContent = `Definitely ${pluralName(state.rightSpecies)}`;
+	      };
+
+	      const renderReferenceSummary = () => {
+	        root.querySelector("#summary-rellin-animal").innerHTML = animalSvg();
+	        root.querySelector("#summary-daxon-animal").innerHTML = animalSvg();
+	        root.querySelector("#summary-rellin-scan").innerHTML = scanMarkup(state.leftSpecies);
+	        root.querySelector("#summary-daxon-scan").innerHTML = scanMarkup(state.rightSpecies);
+	        root.querySelector("#summary-rellin-purpose").innerHTML = purposeMarkup(state.leftSpecies);
+	        root.querySelector("#summary-daxon-purpose").innerHTML = purposeMarkup(state.rightSpecies);
+        root.querySelectorAll(".reference-summary-grid .aligned-population-card").forEach((card) => {
+          const scanBlock = card.querySelector('[data-summary-kind="scan"]');
+          const purposeBlock = card.querySelector('[data-summary-kind="purpose"]');
+          appendEvidencePair(card, scanBlock, purposeBlock);
+        });
+      };
+
+      const renderDecisionEvidence = () => {
+        applyEndpointOrder();
+	        root.querySelector("#decision-rellin-animal").innerHTML = animalSvg();
+	        root.querySelector("#decision-new-animal").innerHTML = animalSvg();
+	        root.querySelector("#decision-daxon-animal").innerHTML = animalSvg();
+	        root.querySelector("#decision-rellin-scan").innerHTML = scanMarkup(state.leftSpecies, true);
+	        root.querySelector("#decision-daxon-scan").innerHTML = scanMarkup(state.rightSpecies, true);
+	        root.querySelector("#decision-rellin-purpose").innerHTML = purposeMarkup(state.leftSpecies, true);
+	        root.querySelector("#decision-daxon-purpose").innerHTML = purposeMarkup(state.rightSpecies, true);
+
+        const newScan = root.querySelector("#decision-new-scan");
+        if (state.scannerAvailable) {
+          newScan.classList.remove("is-hidden");
+          newScan.innerHTML = scanMarkup(state.profile, true);
+        } else {
+          newScan.classList.add("is-hidden");
+          newScan.innerHTML = '<span class="text-small text-muted">Scan unavailable</span>';
+        }
+
+        root.querySelector("#decision-new-purpose").innerHTML = purposeMarkup(state.purpose, true);
+
+        root.querySelectorAll(".decision-population-card").forEach((card) => {
+          const scanBlock = card.querySelector('[data-decision-kind="scan"]');
+          const purposeBlock = card.querySelector('[data-decision-kind="purpose"]');
+          appendEvidencePair(card, scanBlock, purposeBlock);
+        });
+      };
+
+      const resetTest = () => {
+        state.testInitialized = true;
+        state.evidenceSequence = state.evidenceOrder === "purpose-first"
+          ? ["purpose", "scan"]
+          : ["scan", "purpose"];
+        state.evidenceStepIndex = 0;
+        state.completedEvidence = new Set();
+        state.sampleInScanner = false;
+        state.sampleInPurpose = false;
+        state.sampleScanned = false;
+        state.purposeRevealed = false;
+        state.sampleSelected = false;
+        state.placement = 50;
+        state.placementMoved = false;
+        state.draggingSample = false;
+        state.draggingToken = false;
+
+        const sample = root.querySelector("#sample-card");
+        root.querySelector("#sample-home").appendChild(sample);
+        sample.disabled = false;
+        sample.setAttribute("draggable", "true");
+        sample.classList.remove("is-selected");
+        root.querySelector("#test-scanner").classList.remove("is-scanning");
+        root.querySelector("#test-purpose").classList.remove("is-scanning");
+        root.querySelector("#scanner-slot").hidden = false;
+        root.querySelector("#scanner-slot-hint").hidden = false;
+        root.querySelector("#scanner-slot-hint").textContent = "Move the sample animal here";
+        root.querySelector("#run-scan-button").hidden = false;
+        root.querySelector("#run-scan-button .tool-action-label").textContent = "Run biological scan";
+        root.querySelector("#run-scan-button").disabled = true;
+        root.querySelector("#scanner-result").classList.remove("is-complete");
+        root.querySelector("#scanner-result").innerHTML = state.scannerAvailable
+          ? `<span class="text-muted">No biological scan yet</span>`
+          : `<span class="text-muted">The biological scanner is unavailable for this population.</span>`;
+        root.querySelector("#purpose-slot").hidden = false;
+        root.querySelector("#purpose-slot-hint").textContent = "Move the sample animal here";
+	        root.querySelector("#purpose-slot-hint").hidden = false;
+	        root.querySelector("#run-purpose-button").hidden = false;
+	        root.querySelector("#run-purpose-button .tool-action-label").textContent = `Run ${featureScanLower}`;
+	        root.querySelector("#run-purpose-button").disabled = true;
+	        root.querySelector("#purpose-report").classList.remove("is-complete");
+	        root.querySelector("#purpose-report").innerHTML = `<span class="text-muted">No ${featureScanLower} yet</span>`;
+        root.querySelector("#scanner-availability-label").textContent = state.scannerAvailable ? "Available" : "Unavailable";
+        root.querySelector("#purpose-availability-label").textContent = "Available";
+        root.querySelector("#test-scanner").hidden = true;
+        root.querySelector("#test-purpose").hidden = true;
+        root.querySelector("#evidence-workspace").classList.remove("has-two-sources");
+        root.querySelector("#evidence-task-guide").hidden = false;
+        root.querySelector("#representative-context").hidden = false;
+        root.querySelector("#placement-token").disabled = true;
+        root.querySelector("#start-decision-button").disabled = true;
+        root.querySelector("#record-placement-button").disabled = true;
+        root.querySelector("#placement-readout").textContent = "Reveal the available evidence before placing the population.";
+        updatePlacement(50, false);
+        renderSample();
+        showEvidenceStep();
+      };
+
+      const updateEvidenceReady = () => {
+        const ready = state.completedEvidence.has("scan") && state.completedEvidence.has("purpose");
+        root.querySelector("#start-decision-button").disabled = !ready;
+      };
+
+      const showEvidenceStep = () => {
+        const current = state.evidenceSequence[state.evidenceStepIndex];
+        const scanner = root.querySelector("#test-scanner");
+        const purposeStation = root.querySelector("#test-purpose");
+        const showScanner = current === "scan" || state.completedEvidence.has("scan");
+        const showPurpose = current === "purpose" || state.completedEvidence.has("purpose");
+        scanner.hidden = !showScanner;
+        purposeStation.hidden = !showPurpose;
+        root.querySelector("#evidence-workspace").classList.toggle("has-two-sources", showScanner && showPurpose);
+        root.querySelector("#evidence-task-guide").hidden = !current;
+        root.querySelector("#representative-context").hidden = !current;
+
+        if (!current) {
+          root.querySelector("#evidence-step-copy").textContent = "Both evidence sources have been recorded. Continue to categorization.";
+          updateEvidenceReady();
+          return;
+        }
+
+        const stepNumber = state.evidenceStepIndex + 1;
+        if (current === "scan") {
+          root.querySelector("#evidence-step-copy").textContent = state.scannerAvailable
+            ? `Step ${stepNumber} of 2: Move the sample animal to the biological scanner.`
+            : `Step ${stepNumber} of 2: The biological scanner is unavailable for this population.`;
+          root.querySelector("#run-scan-button .tool-action-label").textContent = state.scannerAvailable
+            ? "Run biological scan"
+            : "Continue";
+          root.querySelector("#run-scan-button").disabled = state.scannerAvailable;
+	        } else {
+	          root.querySelector("#evidence-step-copy").textContent = `Step ${stepNumber} of 2: Move the sample animal to the ${featureScannerLower}.`;
+	          root.querySelector("#run-purpose-button .tool-action-label").textContent = `Run ${featureScanLower}`;
+          root.querySelector("#run-purpose-button").disabled = true;
+        }
+      };
+
+      const completeEvidenceStep = (kind) => {
+        if (state.completedEvidence.has(kind)) return;
+        state.completedEvidence.add(kind);
+        state.evidenceStepIndex += 1;
+        showEvidenceStep();
+        updateEvidenceReady();
+      };
+
+      const sample = root.querySelector("#sample-card");
+
+      const returnSampleHome = () => {
+        root.querySelector("#sample-home").appendChild(sample);
+        sample.disabled = false;
+        sample.setAttribute("draggable", "true");
+        sample.classList.remove("is-selected");
+        state.sampleInScanner = false;
+        state.sampleInPurpose = false;
+        state.sampleSelected = false;
+        root.querySelector("#scanner-slot-hint").hidden = false;
+        root.querySelector("#scanner-slot-hint").textContent = "Move the sample animal here";
+        root.querySelector("#purpose-slot-hint").hidden = false;
+        root.querySelector("#purpose-slot-hint").textContent = "Move the sample animal here";
+        root.querySelector("#run-scan-button").disabled = true;
+        root.querySelector("#run-purpose-button").disabled = true;
+      };
+
+      const moveSampleToScanner = (method) => {
+        if (!state.scannerAvailable || sample.disabled || state.completedEvidence.has("scan")) return;
+        logEvent("representative_animal_moved", {
+          destination: "biological_scan",
+          method
+        });
+        state.sampleInPurpose = false;
+        state.sampleInScanner = true;
+        state.sampleSelected = false;
+        sample.classList.remove("is-selected");
+        root.querySelector("#scanner-slot").appendChild(sample);
+        root.querySelector("#scanner-slot-hint").hidden = true;
+        root.querySelector("#run-scan-button .tool-action-label").textContent = "Run biological scan";
+        root.querySelector("#run-scan-button").disabled = false;
+        root.querySelector("#run-purpose-button").disabled = true;
+      };
+
+      const moveSampleToPurposeScanner = (method) => {
+        if (sample.disabled || state.completedEvidence.has("purpose")) return;
+        logEvent("representative_animal_moved", {
+          destination: "purpose_scan",
+          method
+        });
+        state.sampleInScanner = false;
+        state.sampleInPurpose = true;
+        state.sampleSelected = false;
+        sample.classList.remove("is-selected");
+        root.querySelector("#run-scan-button").disabled = true;
+	        root.querySelector("#scanner-slot-hint").hidden = false;
+	        root.querySelector("#purpose-slot").appendChild(sample);
+	        root.querySelector("#purpose-slot-hint").hidden = true;
+	        root.querySelector("#run-purpose-button .tool-action-label").textContent = `Run ${featureScanLower}`;
+        root.querySelector("#run-purpose-button").disabled = false;
+      };
+
+      sample.addEventListener("dragstart", (event) => {
+        state.draggingSample = true;
+        state.sampleSelected = false;
+        sample.classList.remove("is-selected");
+        event.dataTransfer?.setData("text/plain", "representative-animal");
+      });
+      sample.addEventListener("dragend", () => {
+        state.draggingSample = false;
+        root.querySelector("#scanner-slot").classList.remove("is-over");
+        root.querySelector("#purpose-slot").classList.remove("is-over");
+      });
+      sample.addEventListener("click", () => {
+        if (sample.disabled) return;
+        state.sampleSelected = !state.sampleSelected;
+        sample.classList.toggle("is-selected", state.sampleSelected);
+        logEvent("representative_animal_selected", {
+          selected: state.sampleSelected
+        });
+      });
+
+      const scannerSlot = root.querySelector("#scanner-slot");
+      scannerSlot.addEventListener("dragover", (event) => {
+        if (!state.scannerAvailable || sample.disabled) return;
+        event.preventDefault();
+        scannerSlot.classList.add("is-over");
+      });
+      scannerSlot.addEventListener("dragleave", () => scannerSlot.classList.remove("is-over"));
+      scannerSlot.addEventListener("drop", (event) => {
+        event.preventDefault();
+        scannerSlot.classList.remove("is-over");
+        if (state.draggingSample) moveSampleToScanner("drag");
+      });
+      scannerSlot.addEventListener("click", (event) => {
+        if (event.target.closest("#sample-card")) return;
+        if (state.sampleSelected) moveSampleToScanner("click");
+      });
+
+      const purposeSlot = root.querySelector("#purpose-slot");
+      purposeSlot.addEventListener("dragover", (event) => {
+        if (sample.disabled) return;
+        event.preventDefault();
+        purposeSlot.classList.add("is-over");
+      });
+      purposeSlot.addEventListener("dragleave", () => purposeSlot.classList.remove("is-over"));
+      purposeSlot.addEventListener("drop", (event) => {
+        event.preventDefault();
+        purposeSlot.classList.remove("is-over");
+        if (state.draggingSample) moveSampleToPurposeScanner("drag");
+      });
+      purposeSlot.addEventListener("click", (event) => {
+        if (event.target.closest("#sample-card")) return;
+        if (state.sampleSelected) moveSampleToPurposeScanner("click");
+      });
+
+      root.querySelector("#run-scan-button").addEventListener("click", () => {
+        const scanner = root.querySelector("#test-scanner");
+        const button = root.querySelector("#run-scan-button");
+        if (!state.scannerAvailable) {
+          logEvent("new_population_biological_scan_unavailable");
+          root.querySelector("#scanner-slot").hidden = true;
+          button.hidden = true;
+          root.querySelector("#scanner-result").innerHTML = `
+            <strong>Scan unavailable</strong>
+            <span>The biological scanner could not examine this population.</span>
+          `;
+          completeEvidenceStep("scan");
+          return;
+        }
+        if (!state.sampleInScanner) return;
+        logEvent("new_population_biological_scan_started", {
+          profile: state.profile
+        });
+        scanner.classList.add("is-scanning");
+        button.disabled = true;
+        sample.disabled = true;
+        sample.setAttribute("draggable", "false");
+        root.querySelector("#scanner-availability-label").textContent = "Scanning";
+        root.querySelector("#scanner-result").innerHTML = `<span class="text-muted">Scanning the population’s complete internal structure…</span>`;
+
+        setTimeout(() => {
+          logEvent("new_population_biological_scan_completed", {
+            profile: state.profile
+          });
+          scanner.classList.remove("is-scanning");
+          state.sampleScanned = true;
+          root.querySelector("#scanner-availability-label").textContent = "Complete";
+          root.querySelector("#scanner-result").classList.add("is-complete");
+          root.querySelector("#scanner-result").innerHTML = `
+            <strong>Scan complete</strong>
+            <div class="scan-profile aligned-evidence-profile" aria-label="Complete biological scan of the new population">${scanMarkup(state.profile)}</div>
+            <span>Biologists found this same biological profile across many sampled members of the new population.</span>
+          `;
+          root.querySelector("#scanner-slot").hidden = true;
+          button.hidden = true;
+          returnSampleHome();
+          completeEvidenceStep("scan");
+        }, 1150);
+      });
+
+      root.querySelector("#run-purpose-button").addEventListener("click", () => {
+        if (!state.sampleInPurpose) return;
+        logEvent("new_population_purpose_scan_started", {
+          profile: state.purpose
+        });
+        const purposeStation = root.querySelector("#test-purpose");
+        const button = root.querySelector("#run-purpose-button");
+        purposeStation.classList.add("is-scanning");
+        button.disabled = true;
+        sample.disabled = true;
+	        sample.setAttribute("draggable", "false");
+	        root.querySelector("#purpose-availability-label").textContent = "Scanning";
+	        root.querySelector("#purpose-report").innerHTML = `<span class="text-muted">Scanning the population’s ${featureProfileLabel}…</span>`;
+
+        setTimeout(() => {
+          logEvent("new_population_purpose_scan_completed", {
+            profile: state.purpose
+          });
+          purposeStation.classList.remove("is-scanning");
+          state.purposeRevealed = true;
+          root.querySelector("#purpose-availability-label").textContent = "Complete";
+	          root.querySelector("#purpose-report").classList.add("is-complete");
+		          root.querySelector("#purpose-report").innerHTML = `
+		            <strong>Scan complete</strong>
+		            <div class="purpose-profile aligned-evidence-profile" aria-label="Complete ${featureScanLower} for the new population">${purposeMarkup(state.purpose)}</div>
+		            <span>Biologists found this same ${featureProfileLabel} across many sampled members of the new population.</span>
+          `;
+          root.querySelector("#purpose-slot").hidden = true;
+          button.hidden = true;
+          returnSampleHome();
+          completeEvidenceStep("purpose");
+        }, 1300);
+      });
+
+      const continuum = root.querySelector("#species-continuum");
+      const token = root.querySelector("#placement-token");
+
+      const positionFromClientX = (clientX) => {
+        const rect = continuum.getBoundingClientRect();
+        const innerLeft = rect.left + 18;
+        const innerWidth = Math.max(1, rect.width - 36);
+        return Math.max(0, Math.min(100, ((clientX - innerLeft) / innerWidth) * 100));
+      };
+
+	      const placementDescription = (value) => {
+	        const leftSpecies = singularName(state.leftSpecies);
+	        const rightSpecies = singularName(state.rightSpecies);
+	        if (value < 20) return `Strongly ${leftSpecies}`;
+	        if (value < 45) return `Leaning ${leftSpecies}`;
+	        if (value <= 55) return "Equally between";
+	        if (value <= 80) return `Leaning ${rightSpecies}`;
+	        return `Strongly ${rightSpecies}`;
+      };
+
+      const registerPlacementInteraction = () => {};
+
+      const updatePlacement = (value, moved = true) => {
+        state.placement = Math.max(0, Math.min(100, value));
+        state.placementMoved = moved || state.placementMoved;
+        const rect = continuum.getBoundingClientRect();
+        const usableWidth = Math.max(0, rect.width - 36);
+        token.style.left = `${18 + usableWidth * (state.placement / 100)}px`;
+        token.setAttribute("aria-valuenow", String(Math.round(state.placement)));
+        root.querySelector("#placement-readout").textContent = token.disabled
+          ? "Reveal the available evidence before placing the population."
+          : placementDescription(state.placement);
+        root.querySelector("#record-placement-button").disabled = token.disabled || !state.placementMoved;
+      };
+
+      token.addEventListener("pointerdown", (event) => {
+        if (token.disabled) return;
+        registerPlacementInteraction("drag");
+        state.draggingToken = true;
+        token.setPointerCapture(event.pointerId);
+        updatePlacement(positionFromClientX(event.clientX));
+      });
+      token.addEventListener("pointermove", (event) => {
+        if (!state.draggingToken) return;
+        updatePlacement(positionFromClientX(event.clientX));
+      });
+      token.addEventListener("pointerup", (event) => {
+        state.draggingToken = false;
+        logEvent("placement_changed", {
+          method: "drag",
+          raw_left_to_right: Math.round(state.placement)
+        });
+        if (token.hasPointerCapture(event.pointerId)) token.releasePointerCapture(event.pointerId);
+      });
+      token.addEventListener("keydown", (event) => {
+        if (token.disabled) return;
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          registerPlacementInteraction("keyboard");
+          updatePlacement(state.placement - 2);
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          registerPlacementInteraction("keyboard");
+          updatePlacement(state.placement + 2);
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          registerPlacementInteraction("keyboard");
+          updatePlacement(0);
+        } else if (event.key === "End") {
+          event.preventDefault();
+          registerPlacementInteraction("keyboard");
+          updatePlacement(100);
+        } else {
+          return;
+        }
+        logEvent("placement_changed", {
+          method: "keyboard",
+          raw_left_to_right: Math.round(state.placement)
+        });
+      });
+      continuum.addEventListener("click", (event) => {
+        if (token.disabled || event.target.closest("#placement-token")) return;
+        registerPlacementInteraction("click");
+        updatePlacement(positionFromClientX(event.clientX));
+        logEvent("placement_changed", {
+          method: "click",
+          raw_left_to_right: Math.round(state.placement)
+        });
+      });
+      window.addEventListener("resize", () => updatePlacement(state.placement, false));
+
+      const guideStepByScreen = {
+        intro: "instructions",
+        instructions: "instructions",
+        world: "region",
+        "learn-rellin": "species",
+        "learn-daxon": "species",
+        "reference-summary": "species",
+        population: "population",
+        test: "evidence",
+        decision: "categorize",
+        complete: "categorize"
+      };
+
+      const updateGuide = (screenName) => {
+        const currentStep = guideStepByScreen[screenName];
+        root.querySelectorAll("[data-guide-step]").forEach((step) => {
+          const isCurrent = step.dataset.guideStep === currentStep;
+          step.classList.toggle("is-current", isCurrent);
+          if (isCurrent) {
+            step.setAttribute("aria-current", "step");
+          } else {
+            step.removeAttribute("aria-current");
+          }
+        });
+      };
+
+      const showScreen = (screenName) => {
+        const previousScreen = root.querySelector(".study-screen.is-active")?.dataset.screen;
+        currentScreen = screenName;
+        root.querySelectorAll(".study-screen").forEach((screen) => {
+          screen.classList.toggle("is-active", screen.dataset.screen === screenName);
+        });
+        root.classList.toggle("is-decision-view", screenName === "decision");
+        updateGuide(screenName);
+        if (screenName === "instructions") {
+          state.instructionStep = 0;
+          renderInstructionStep();
+        }
+        if (screenName === "test" && previousScreen !== "decision" && !state.testInitialized) resetTest();
+        if (screenName === "reference-summary") renderReferenceSummary();
+        if (screenName === "decision") {
+          decisionShownAt = performance.now();
+          renderDecisionEvidence();
+          root.querySelector("#placement-token").disabled = false;
+          updatePlacement(state.placement, false);
+        }
+        logEvent("screen_enter", {
+          previous_screen: previousScreen || null,
+          entered_screen: screenName
+        });
+        if (typeof root.scrollIntoView === "function") {
+          root.scrollIntoView({ block: "start", behavior: "auto" });
+        }
+      };
+
+	      const restartDemo = () => {
+	        state.scannedReferences = new Set();
+	        state.revealedReferencePurposes = new Set();
+	        state.instructionStep = 0;
+	        applyFeatureTerminology();
+	        applyGlobalEvidenceOrder();
+        applyReferenceOrder();
+
+        root.querySelectorAll("[data-reference-result]").forEach((result) => {
+          result.textContent = "Biological scan not yet run";
+          result.classList.add("text-muted");
+          result.classList.remove("is-complete");
+        });
+	        root.querySelectorAll("[data-purpose-result]").forEach((result) => {
+	          result.textContent = `${featureScanLabel} not yet run`;
+          result.classList.add("text-muted");
+          result.classList.remove("is-complete");
+        });
+	        root.querySelectorAll(".scan-reference-button").forEach((button) => {
+	          button.textContent = `Run ${singularName(button.dataset.referenceProfile)} biological scan`;
+	        });
+		        root.querySelectorAll(".reveal-reference-purpose").forEach((button) => {
+		          button.textContent = `Run ${singularName(button.dataset.referencePurpose)} ${featureScanLower}`;
+		        });
+
+	        updateLearningProgress();
+	        resetTest();
+	        showScreen(state.showInstructions ? "intro" : "world");
+      };
+
+      root.querySelectorAll("[data-go-screen]").forEach((button) => {
+        button.addEventListener("click", () => showScreen(button.dataset.goScreen));
+      });
+
+      root.querySelector("#instruction-back-button").addEventListener("click", () => {
+        if (state.instructionStep === 0) {
+          showScreen("intro");
+          return;
+        }
+        state.instructionStep -= 1;
+        logEvent("instruction_step", {
+          direction: "back",
+          instruction_step: state.instructionStep + 1
+        });
+        renderInstructionStep();
+      });
+
+      root.querySelector("#instruction-next-button").addEventListener("click", () => {
+        const lastStep = root.querySelectorAll("[data-instruction-step]").length - 1;
+        if (state.instructionStep === lastStep) {
+          showScreen("world");
+          return;
+        }
+        state.instructionStep += 1;
+        logEvent("instruction_step", {
+          direction: "forward",
+          instruction_step: state.instructionStep + 1
+        });
+        renderInstructionStep();
+      });
+
+      root.querySelectorAll(".condition-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.profile = button.dataset.profile;
+          state.purpose = button.dataset.purpose;
+          root.querySelectorAll(".condition-button").forEach((candidate) => {
+            const active = candidate === button;
+            candidate.classList.toggle("btn-primary", active);
+            candidate.setAttribute("aria-pressed", String(active));
+          });
+          restartDemo();
+        });
+      });
+
+      root.querySelectorAll(".availability-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.scannerAvailable = button.dataset.scannerAvailable === "true";
+          root.querySelectorAll(".availability-button").forEach((candidate) => {
+            const active = candidate === button;
+            candidate.classList.toggle("btn-primary", active);
+            candidate.setAttribute("aria-pressed", String(active));
+          });
+          restartDemo();
+        });
+      });
+
+      root.querySelectorAll(".environment-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.environment = button.dataset.environment;
+          root.querySelectorAll(".environment-button").forEach((candidate) => {
+            const active = candidate === button;
+            candidate.classList.toggle("btn-primary", active);
+            candidate.setAttribute("aria-pressed", String(active));
+          });
+          renderEnvironment();
+          restartDemo();
+        });
+      });
+
+      root.querySelectorAll(".order-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.evidenceOrder = button.dataset.evidenceOrder;
+          root.querySelectorAll(".order-button").forEach((candidate) => {
+            const active = candidate === button;
+            candidate.classList.toggle("btn-primary", active);
+            candidate.setAttribute("aria-pressed", String(active));
+          });
+          restartDemo();
+        });
+      });
+
+      root.querySelector("#record-placement-button").addEventListener("click", () => {
+        const rawPlacement = Math.round(state.placement);
+        const canonicalPlacement = state.endpointOrder === "a-left"
+          ? rawPlacement
+          : 100 - rawPlacement;
+        const responseLabel = placementDescription(state.placement);
+        const completedAtPerformance = performance.now();
+        const categorizationResponseTime = decisionShownAt === null
+          ? null
+          : Math.round(completedAtPerformance - decisionShownAt);
+
+        logEvent("decision_recorded", {
+          placement_raw: rawPlacement,
+          placement_canonical: canonicalPlacement
+        });
+
+        root.querySelector("#completion-copy").textContent = `Placement recorded: ${responseLabel}.`;
+        showScreen("complete");
+
+        const result = {
+          trial_number: state.trialNumber,
+          item_pair: state.itemPair,
+	          animal_a: state.animalA,
+	          animal_b: state.animalB,
+	          bio_profile: state.profile,
+	          feature_type: state.featureType,
+	          feature_profile: state.purpose,
+          condition_cell: state.conditionCell,
+          evidence_order: state.evidenceOrder,
+          endpoint_order: state.endpointOrder,
+          left_species: state.leftSpecies,
+          right_species: state.rightSpecies,
+          first_introduced_species: state.firstIntroducedSpecies,
+          environment: state.environment,
+          canonical_zero_species: state.canonicalZeroSpecies,
+          canonical_hundred_species: state.canonicalHundredSpecies,
+          placement_raw: rawPlacement,
+          placement_canonical: canonicalPlacement,
+          categorization_response_time: categorizationResponseTime
+        };
+
+        window.__PURPOSE_CATEGORIZATION_RESULT__ = result;
+        if (window.parent !== window) {
+          window.parent.postMessage({
+            type: "purpose-categorization-complete",
+            payload: result
+          }, "*");
+        }
+      });
+
+      root.querySelector("[data-restart]").addEventListener("click", restartDemo);
+
+	      applyFeatureTerminology();
+	      hydrateSpeciesText();
+      applyGlobalEvidenceOrder();
+      applyReferenceOrder();
+      renderReferenceAnimals();
+      renderInstructionStep();
+      renderEnvironment();
+      renderSample();
+      updatePlacement(50, false);
+      applyEndpointOrder();
+      updateLearningProgress();
+      showScreen(state.showInstructions ? "intro" : "world");
+      if (window.parent !== window) {
+        root.querySelector("[data-restart]").hidden = true;
+        window.parent.postMessage({
+          type: "purpose-categorization-ready",
+          payload: {
+            trial_number: state.trialNumber,
+            item_pair: state.itemPair
+          }
+        }, "*");
+      }
+    })();
+  </script>
+</div>
+
+</body>
+</html>
