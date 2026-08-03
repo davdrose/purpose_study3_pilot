@@ -1,0 +1,100 @@
+/*
+ * Minimal local jsPsych 8.2.3 presentation layer.
+ * Runtime: https://www.jspsych.org/8.2/
+ * This replaces the upstream distribution CSS that embedded large font files.
+ */
+.jspsych-display-element {
+  box-sizing: border-box;
+  min-height: 100%;
+  color: inherit;
+  font-family: inherit;
+}
+
+.jspsych-display-element * {
+  box-sizing: border-box;
+}
+
+.jspsych-content-wrapper {
+  width: 100%;
+  min-height: 100%;
+}
+
+.jspsych-content {
+  width: 100%;
+  min-height: 100%;
+}
+
+#jspsych-html-button-response-stimulus {
+  width: 100%;
+}
+
+.jspsych-btn-group-grid,
+.jspsych-btn-group-flex {
+  display: flex;
+  width: min(1180px, calc(100% - 40px));
+  margin: -88px auto 0;
+  padding: 0 24px 32px;
+  position: relative;
+  z-index: 8;
+  justify-content: flex-end;
+}
+
+.jspsych-btn {
+  font: inherit;
+}
+
+#jspsych-progressbar-container {
+  position: sticky;
+  z-index: 60;
+  top: 0;
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr);
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px clamp(18px, 4vw, 64px);
+  border-bottom: 1px solid #d7e2da;
+  background: rgba(255, 255, 255, .96);
+  color: #4d655e;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+#jspsych-progressbar-outer {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: #dce7de;
+}
+
+#jspsych-progressbar-inner {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1f6a50, #57a37f);
+  transition: width 240ms ease;
+}
+
+.jspsych-display-element .app-header {
+  top: 34px;
+}
+
+@media (max-width: 700px) {
+  #jspsych-progressbar-container {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .jspsych-display-element .app-header {
+    top: 48px;
+  }
+
+  .jspsych-btn-group-grid,
+  .jspsych-btn-group-flex {
+    width: 100%;
+    margin: 0;
+    padding: 18px;
+  }
+}
