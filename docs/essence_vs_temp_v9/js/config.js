@@ -2,16 +2,16 @@
   "use strict";
 
   const Config = {
-    EXPERIMENT_VERSION: "essence_vs_temp_v8_full_pilot",
+    EXPERIMENT_VERSION: "essence_vs_temp_v9_explanation_lab",
     SOURCE_SURVEY: "exp5.qsf",
     JSPSYCH_VERSION: "8.3.0",
     STUDY_TITLE: "Research Study",
     ESTIMATED_MINUTES: 4,
     COMPENSATION: "$0.80",
     CONDITIONS: ["purpose", "temperature"],
-    COMPLETION_URL: "https://app.prolific.co/submissions/complete?cc=843D0C17",
+    LAB_CLIENT_URL: new URL("js/lab-study-client.js", document.baseURI).href,
     REMOTE_SUBMISSION_ENABLED: true,
-    DATA_SCHEMA_VERSION: "5.0.0",
+    DATA_SCHEMA_VERSION: "6.0.0",
     SLIDER_MIN: 0,
     SLIDER_MAX: 100,
     SLIDER_START: 50,

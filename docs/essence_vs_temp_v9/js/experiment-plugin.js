@@ -8,7 +8,7 @@
   class EssenceSurveyPlugin {
     static info = {
       name: "essence-vs-temperature-survey",
-      version: "8.0.0",
+      version: "9.0.0",
       parameters: {},
       data: {}
     };
@@ -210,7 +210,7 @@
       try {
         const result = await Study.Transport.submit(this.data.buildPayload(), this.assignment);
         window.essenceSaveResult = result;
-        this.showCompletion(summary, Boolean(result.transmitted));
+        this.showCompletion(summary, result);
       } catch (error) {
         console.error("Essence Study submission error", error);
         this.saving = false;
@@ -219,8 +219,8 @@
       }
     }
 
-    showCompletion(summary, remoteSaved) {
-      this.terminal = { kind: "complete", summary: summary, remoteSaved: remoteSaved };
+    showCompletion(summary, saveResult) {
+      this.terminal = { kind: "complete", summary: summary, saveResult: saveResult };
       this.finishJsPsych(summary);
     }
 
@@ -230,7 +230,8 @@
         this.render(Study.UI.declined(this.assignment));
         return;
       }
-      this.render(Study.UI.complete(this.assignment, this.terminal.summary, this.terminal.remoteSaved));
+      const saveResult = this.terminal.saveResult || {};
+      this.render(Study.UI.complete(this.assignment, this.terminal.summary, saveResult));
       if (this.assignment.preview) {
         const targets = this.data.responses.filter(function (row) { return row.question_type === "target_slider"; });
         this.root.dataset.testCondition = this.assignment.condition;
@@ -254,15 +255,17 @@
         this.root.dataset.testPayloadProlificPid = String(payload.participant.prolific_pid || "");
         this.root.dataset.testPayloadStudyId = String(payload.participant.study_id || "");
         this.root.dataset.testPayloadSessionId = String(payload.participant.session_id || "");
-        this.root.dataset.testTransmitted = String(Boolean(this.terminal.remoteSaved));
+        this.root.dataset.testTransmitted = String(Boolean(saveResult.transmitted));
+        this.root.dataset.testSubmissionMode = String(saveResult.mode || "");
+        this.root.dataset.testSubmissionId = String(saveResult.submissionId || "");
       }
-      if (this.terminal.remoteSaved) {
+      if (saveResult.transmitted && saveResult.mode === "production" && saveResult.redirectUrl) {
         this.root.querySelector("#prolific-button").addEventListener("click", function () {
-          window.location.assign(Config.COMPLETION_URL);
+          window.location.assign(saveResult.redirectUrl);
         });
-        if (!this.redirectScheduled && Config.COMPLETION_URL) {
+        if (!this.redirectScheduled) {
           this.redirectScheduled = true;
-          window.setTimeout(function () { window.location.assign(Config.COMPLETION_URL); }, 900);
+          window.setTimeout(function () { window.location.assign(saveResult.redirectUrl); }, 900);
         }
       }
     }

@@ -171,10 +171,14 @@
     });
   }
 
-  function complete(assignment, summary, remoteSaved) {
-    const remoteCopy = remoteSaved
-      ? "Your responses were saved. Continue to Prolific to record your completion."
-      : "Your responses have been recorded for this local test.";
+  function complete(assignment, summary, saveResult) {
+    const remoteSaved = Boolean(saveResult && saveResult.transmitted);
+    const production = remoteSaved && saveResult.mode === "production";
+    const remoteCopy = production
+      ? "Your responses were saved. You will now return to Prolific to record your completion."
+      : remoteSaved
+        ? "Your sandbox submission was saved. You may close this tab and return to the Study Console."
+        : "Your responses have been recorded for this local test.";
     return shell({
       assignment: assignment,
       compact: true,
@@ -182,7 +186,7 @@
       title: "Thank you for participating",
       lede: remoteCopy,
       content: '<div class="completion-check" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="m14 25 7 7 14-16"/></svg></div>' +
-        (remoteSaved
+        (production
           ? '<div class="form-actions">' + primaryButton("Continue to Prolific", 'id="prolific-button" type="button"') + '</div>'
           : '')
     });
@@ -211,7 +215,7 @@
   }
 
   function fatal(message) {
-    return '<main class="study-shell"><section class="study-card study-card--compact"><p class="eyebrow">Unable to open</p><h1>The experiment could not be started</h1><p class="lede">' + escapeHtml(message) + '</p><p class="technical-note">Please reopen index.html from the complete essence_vs_temp_v8 folder.</p></section></main>';
+    return '<main class="study-shell"><section class="study-card study-card--compact"><p class="eyebrow">Unable to open</p><h1>The experiment could not be started</h1><p class="lede">' + escapeHtml(message) + '</p><p class="technical-note">Please reopen index.html from the complete essence_vs_temp_v9 folder.</p></section></main>';
   }
 
   function radioCard(name, value, title, detail) {

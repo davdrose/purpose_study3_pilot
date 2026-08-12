@@ -68,6 +68,8 @@
     const prolificPid = value(params, "PROLIFIC_PID");
     const studyId = value(params, "STUDY_ID");
     const sessionId = value(params, "SESSION_ID");
+    const labStudyKey = value(params, "study");
+    const submissionMode = value(params, "mode") === "sandbox" ? "sandbox" : "production";
     const fallbackKey = "preview-" + Math.random().toString(36).slice(2, 10) + "-" + Date.now().toString(36);
     const assignmentKey = prolificPid || fallbackKey;
     const participantId = prolificPid ? pseudonymousParticipantId(prolificPid) : fallbackKey;
@@ -89,6 +91,8 @@
       prolific_pid: prolificPid || null,
       study_id: studyId || null,
       session_id: sessionId || null,
+      lab_study_key: labStudyKey || null,
+      submission_mode: submissionMode,
       seed: seed,
       condition: condition,
       construct: condition,
