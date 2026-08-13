@@ -2,7 +2,7 @@
   "use strict";
 
   const Config = {
-    EXPERIMENT_VERSION: "essence_vs_temp_v9.1_balanced",
+    EXPERIMENT_VERSION: "essence_vs_temp_v9.1.1_balanced",
     SOURCE_SURVEY: "exp5.qsf",
     JSPSYCH_VERSION: "8.3.0",
     STUDY_TITLE: "Research Study",

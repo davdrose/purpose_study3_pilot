@@ -18,6 +18,7 @@
         assignment.condition_assignment_source = labClient.launch.assignmentSource;
         assignment.condition_assignment_id = labClient.launch.assignmentId || null;
       }
+      document.getElementById("jspsych-target").replaceChildren();
       window.essenceAssignment = assignment;
       document.title = window.EssenceStudy.Config.STUDY_TITLE;
       const jsPsych = initJsPsych({
