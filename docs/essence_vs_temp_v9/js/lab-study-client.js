@@ -1,15 +1,16 @@
 /**
  * Explanation Lab study client v1.0.0
  *
- * Browser-native submission client for jsPsych studies hosted on GitHub
- * Pages. This study includes a pinned local copy so a future console update
- * cannot silently change a deployed experiment.
+ * Shared, browser-native submission client for jsPsych studies hosted on
+ * GitHub Pages. Configure this file once for the lab, then host this exact
+ * version at a stable URL so deployed studies never change unexpectedly.
  */
 
-const CLIENT_VERSION = "1.0.0";
+const CLIENT_VERSION = "1.0.1";
 const FIREBASE_SDK_VERSION = "12.16.0";
 
-// Firebase's web configuration is public by design. Never put a service-account
+// Firebase's web configuration is public by design. Replace these placeholders
+// once, in the centrally hosted copy of this file. Never put a service-account
 // credential or private key here.
 const LAB_CONFIG = Object.freeze({
   firebase: {
@@ -32,8 +33,15 @@ function configured(config) {
   );
 }
 
-function normalizeTrials(input) {
-  const value = input && typeof input.values === "function" ? input.values() : input;
+export function normalizeTrials(input) {
+  // Arrays also expose Array.prototype.values(), which returns an iterator.
+  // Preserve normal arrays and call values() only for jsPsych DataCollection
+  // objects.
+  const value = Array.isArray(input)
+    ? input
+    : input && typeof input.values === "function"
+      ? input.values()
+      : input;
   if (!Array.isArray(value)) {
     throw new TypeError(
       "Study data must be an array or the value returned by jsPsych.data.get().",
