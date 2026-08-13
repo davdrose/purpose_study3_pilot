@@ -6,7 +6,7 @@
  * version at a stable URL so deployed studies never change unexpectedly.
  */
 
-const CLIENT_VERSION = "1.0.1";
+const CLIENT_VERSION = "1.1.0";
 const FIREBASE_SDK_VERSION = "12.16.0";
 
 // Firebase's web configuration is public by design. Replace these placeholders
@@ -72,7 +72,7 @@ function readLaunchContext() {
   const mode = params.get("mode") === "sandbox" ? "sandbox" : "production";
   return {
     studyKey: params.get("study") ?? "",
-    condition: params.get("condition") ?? "default",
+    condition: params.get("condition") ?? "",
     mode,
     participant: {
       prolificPid: params.get("PROLIFIC_PID") ?? "",
@@ -82,10 +82,49 @@ function readLaunchContext() {
   };
 }
 
+export function pickBalancedCondition(counters, tieBreakers = {}) {
+  const candidates = counters
+    .filter(
+      (counter) =>
+        counter &&
+        typeof counter.condition === "string" &&
+        Number.isInteger(counter.assignedCount) &&
+        counter.assignedCount >= 0 &&
+        Number.isInteger(counter.target) &&
+        counter.target > 0,
+    )
+    .map((counter) => ({
+      ...counter,
+      fillRatio: counter.assignedCount / counter.target,
+      tieBreaker: Number(tieBreakers[counter.condition] ?? 0),
+    }));
+
+  if (!candidates.length) {
+    throw new Error("Balanced assignment has not been configured for this study.");
+  }
+
+  candidates.sort(
+    (left, right) =>
+      left.fillRatio - right.fillRatio ||
+      left.assignedCount - right.assignedCount ||
+      left.tieBreaker - right.tieBreaker ||
+      left.condition.localeCompare(right.condition),
+  );
+  return candidates[0].condition;
+}
+
 async function sha256(value) {
   const bytes = new TextEncoder().encode(value);
   const hash = await crypto.subtle.digest("SHA-256", bytes);
   return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function hashFraction(hex) {
+  return Number.parseInt(hex.slice(0, 12), 16) / 0xffffffffffff;
+}
+
+function counterDocumentId(condition) {
+  return encodeURIComponent(condition);
 }
 
 function estimateBytes(value) {
@@ -101,6 +140,104 @@ async function loadFirebase() {
     import(`${root}/firebase-app-check.js`),
   ]);
   return { ...appModule, ...authModule, ...firestoreModule, ...appCheckModule };
+}
+
+async function deterministicCondition(study, launch) {
+  if (!Array.isArray(study.conditions) || !study.conditions.length) {
+    throw new Error("This study does not have any registered conditions.");
+  }
+  const identity =
+    launch.participant.sessionId ||
+    launch.participant.prolificPid ||
+    crypto.randomUUID();
+  const digest = await sha256(`${launch.studyKey}:${identity}:condition`);
+  return study.conditions[Number.parseInt(digest.slice(0, 8), 16) % study.conditions.length];
+}
+
+async function allocateBalancedCondition(firebase, db, user, launch, study) {
+  const identity = launch.participant.sessionId || launch.participant.prolificPid;
+  if (!identity) {
+    throw new Error("Balanced assignment requires a Prolific participant or session ID.");
+  }
+
+  const assignmentId = await sha256(`${launch.studyKey}:${identity}:assignment`);
+  const assignmentRef = firebase.doc(
+    db,
+    "studies",
+    launch.studyKey,
+    "assignments",
+    assignmentId,
+  );
+  const counterEntries = await Promise.all(
+    study.conditions.map(async (condition) => ({
+      condition,
+      ref: firebase.doc(
+        db,
+        "publicStudies",
+        launch.studyKey,
+        "conditionCounters",
+        counterDocumentId(condition),
+      ),
+      tieBreaker: hashFraction(await sha256(`${assignmentId}:${condition}`)),
+    })),
+  );
+
+  let assignedCondition = "";
+  let reused = false;
+  await firebase.runTransaction(db, async (transaction) => {
+    const existing = await transaction.get(assignmentRef);
+    if (existing.exists()) {
+      const priorCondition = existing.data().condition;
+      if (!study.conditions.includes(priorCondition)) {
+        throw new Error("The saved condition assignment is no longer registered.");
+      }
+      assignedCondition = priorCondition;
+      reused = true;
+      return;
+    }
+
+    const snapshots = await Promise.all(
+      counterEntries.map((entry) => transaction.get(entry.ref)),
+    );
+    const counters = snapshots.map((snapshot, index) => {
+      if (!snapshot.exists()) {
+        throw new Error(
+          `Balanced assignment is not initialized for “${counterEntries[index].condition}”.`,
+        );
+      }
+      return snapshot.data();
+    });
+    const tieBreakers = Object.fromEntries(
+      counterEntries.map((entry) => [entry.condition, entry.tieBreaker]),
+    );
+    assignedCondition = pickBalancedCondition(counters, tieBreakers);
+    const selectedIndex = counterEntries.findIndex(
+      (entry) => entry.condition === assignedCondition,
+    );
+    const selectedCounter = counters[selectedIndex];
+
+    transaction.set(assignmentRef, {
+      assignmentId,
+      studyId: launch.studyKey,
+      condition: assignedCondition,
+      counterId: counterDocumentId(assignedCondition),
+      authUid: user.uid,
+      mode: "production",
+      clientVersion: CLIENT_VERSION,
+      createdAt: firebase.serverTimestamp(),
+    });
+    transaction.update(counterEntries[selectedIndex].ref, {
+      assignedCount: selectedCounter.assignedCount + 1,
+      lastAssignmentId: assignmentId,
+      updatedAt: firebase.serverTimestamp(),
+    });
+  });
+
+  return {
+    condition: assignedCondition,
+    assignmentId,
+    assignmentSource: reused ? "balanced-existing" : "balanced-new",
+  };
 }
 
 function renderRecovery(error, retry) {
@@ -147,7 +284,15 @@ export async function createExplanationLabClient(options = {}) {
     );
   }
 
-  const launch = { ...readLaunchContext(), ...options.launch };
+  const launchFromUrl = readLaunchContext();
+  const launch = {
+    ...launchFromUrl,
+    ...(options.launch ?? {}),
+    participant: {
+      ...launchFromUrl.participant,
+      ...(options.launch?.participant ?? {}),
+    },
+  };
   launch.studyKey = options.studyKey ?? launch.studyKey;
   if (!launch.studyKey) {
     throw new Error("This launch URL is missing its study key (?study=…).");
@@ -199,6 +344,19 @@ export async function createExplanationLabClient(options = {}) {
   }
   if (launch.mode === "sandbox" && !["draft", "sandbox", "live"].includes(study.status)) {
     throw new Error("This study is not available for sandbox testing.");
+  }
+  if (!launch.condition) {
+    if (launch.mode === "production" && study.allocationMode === "balanced") {
+      Object.assign(
+        launch,
+        await allocateBalancedCondition(firebase, db, user, launch, study),
+      );
+    } else {
+      launch.condition = await deterministicCondition(study, launch);
+      launch.assignmentSource = "deterministic";
+    }
+  } else {
+    launch.assignmentSource = "explicit";
   }
   if (Array.isArray(study.conditions) && !study.conditions.includes(launch.condition)) {
     throw new Error(`Condition “${launch.condition}” is not registered for this study.`);

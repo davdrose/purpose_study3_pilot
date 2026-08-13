@@ -2,14 +2,14 @@
   "use strict";
 
   const Config = {
-    EXPERIMENT_VERSION: "essence_vs_temp_v9_explanation_lab",
+    EXPERIMENT_VERSION: "essence_vs_temp_v9.1_balanced",
     SOURCE_SURVEY: "exp5.qsf",
     JSPSYCH_VERSION: "8.3.0",
     STUDY_TITLE: "Research Study",
     ESTIMATED_MINUTES: 4,
     COMPENSATION: "$0.80",
     CONDITIONS: ["purpose", "temperature"],
-    LAB_CLIENT_URL: new URL("js/lab-study-client.js?v=1.0.1", document.baseURI).href,
+    LAB_CLIENT_URL: new URL("js/lab-study-client.js?v=1.1.0", document.baseURI).href,
     REMOTE_SUBMISSION_ENABLED: true,
     DATA_SCHEMA_VERSION: "6.0.0",
     SLIDER_MIN: 0,

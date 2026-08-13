@@ -8,11 +8,10 @@
   function loadLabClient(assignment) {
     if (!clientPromise) {
       clientPromise = import(Config.LAB_CLIENT_URL).then(function (module) {
-        return module.default({
-          launch: {
-            condition: assignment.condition
-          }
-        });
+        const options = assignment.condition_override
+          ? { launch: { condition: assignment.condition_override } }
+          : {};
+        return module.default(options);
       });
     }
     return clientPromise;
