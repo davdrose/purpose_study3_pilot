@@ -1,0 +1,22 @@
+{
+  "format": "explanation-lab-study-config",
+  "schemaVersion": "2.0.0",
+  "convertedAt": "2026-08-14T12:53:41.670Z",
+  "sourceZip": "pilot_v14.zip",
+  "jsPsychVersion": "8.3.0",
+  "experimentVersion": "fossil_pilot_v14",
+  "clientVersion": "1.1.1",
+  "conditions": [
+    "dna_near_ember_purpose_near_marsh",
+    "purpose_near_ember_dna_near_marsh"
+  ],
+  "demographicsConfirmed": true,
+  "demographicFields": [
+    "age",
+    "ethnicity",
+    "gender",
+    "other_gender",
+    "other_race",
+    "race"
+  ]
+}
