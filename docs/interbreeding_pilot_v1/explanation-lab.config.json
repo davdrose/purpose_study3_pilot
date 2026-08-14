@@ -1,0 +1,29 @@
+{
+  "format": "explanation-lab-study-config",
+  "schemaVersion": "2.0.0",
+  "convertedAt": "2026-08-14T18:23:31.944Z",
+  "sourceZip": "interbreeding_pilot_v38.zip",
+  "jsPsychVersion": "8.3.0",
+  "experimentVersion": "interbreeding_pilot_v38",
+  "clientVersion": "1.1.1",
+  "conditions": [
+    "complete_2x2_sequence"
+  ],
+  "demographicsConfirmed": true,
+  "demographicFields": [
+    "age",
+    "ethnicity",
+    "gender",
+    "other_gender",
+    "other_race",
+    "race"
+  ],
+  "integrationStatus": "ready-for-sandbox",
+  "design": "within_participant_complete_2x2_dna_by_purpose_evidence_timing",
+  "conditionStrategy": "single_console_condition_within_participant_cells",
+  "trialConditionField": "condition_cell",
+  "feedbackFields": [
+    "feedback",
+    "confusion_feedback"
+  ]
+}
