@@ -1,0 +1,20 @@
+{
+  "format": "explanation-lab-study-config",
+  "schemaVersion": "2.0.0",
+  "convertedAt": "2026-08-15T18:49:04.861Z",
+  "sourceZip": "interbreeding_pilot_v40.zip",
+  "jsPsychVersion": "8.3.0",
+  "experimentVersion": "interbreeding_pilot_v40",
+  "clientVersion": "1.2.0",
+  "conditions": [],
+  "demographicsConfirmed": true,
+  "demographicFields": [
+    "age",
+    "ethnicity",
+    "gender",
+    "other_gender",
+    "other_race",
+    "race"
+  ],
+  "conversionOutcome": "ready"
+}
