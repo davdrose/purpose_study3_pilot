@@ -1,12 +1,12 @@
 /**
- * Explanation Lab study client v1.4.0
+ * Explanation Lab study client v1.5.0
  *
  * Shared, browser-native submission client for jsPsych studies hosted on
  * GitHub Pages. Configure this file once for the lab, then host this exact
  * version at a stable URL so deployed studies never change unexpectedly.
  */
 
-const CLIENT_VERSION = "1.4.0";
+const CLIENT_VERSION = "1.5.0";
 const FIREBASE_SDK_VERSION = "12.16.0";
 
 // Firebase's web configuration is public by design. Replace these placeholders
@@ -59,6 +59,9 @@ const CONDITION_KEYS = new Set([
   "experimental_condition",
   "between_condition",
   "launch_condition",
+  "order_condition",
+  "presentation_order",
+  "counterbalance_order",
 ]);
 
 function normalizedConditionKey(value) {
@@ -88,7 +91,7 @@ export function verifyObservedCondition(trials, study, expectedCondition) {
   const observed = new Set();
   collectConditionValues(trials, observed);
   const observedConditions = Array.from(observed);
-  const required = study.assignmentType === "between_participant"
+  const required = ["between_participant", "counterbalanced_within_participant"].includes(study.assignmentType)
     && study.integrationMode === "converted";
   if (!required) {
     return { status: "not_required", expectedCondition, observedConditions };

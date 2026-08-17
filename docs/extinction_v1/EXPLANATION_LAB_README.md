@@ -1,28 +1,27 @@
 # Explanation Lab conversion report
 
-Converted: 2026-08-16T23:32:00.714Z
+Converted: 2026-08-17T00:40:10.765Z
 Source ZIP: extinction_v5.zip
 jsPsych: 8.2.3
 Experiment version: 1.0.0
-Client version: 1.4.0
-Assignment: between_participant
-Launch conditions: extinction, survival
-Internal condition cells: none detected
+Client version: 1.5.0
+Assignment: counterbalanced_within_participant
+Launch assignment parameter: order
+Launch conditions: extinction_first, survival_first
+Internal condition cells: extinction, survival
 Demographics: age, ethnicity, gender, other_gender, other_race, race
-Package fingerprint: 9e3c7447b7da1e1e5a41394a1a0ffebf4d2d945b0516a41721cc6e5f73884979
+Package fingerprint: 3fd70dd9f3197581afaf65a60110110999e3be5a8d6e62e8316c0b00bcac5747
 
 ## Changes
 - Added explanation-lab.config.json with confirmed versions and data mappings.
 - Preserved the original launch files so a future public-repository package can remove lab collection safely.
 - Added a frozen local Explanation Lab client at js/explanation-lab-client.js.
-- Automatic rewriting was not safe. The original experiment code was preserved.
-- Added EXPLANATION_LAB_MANUAL_INTEGRATION.js with paste-ready code for the detected experiment file.
+- Integrated the jsPsych experiment in js/experiment.js.
+- Connected 1 condition reader to the Console assignment.
+- Passed post-conversion checks for the save handler and condition assignment.
 
 ## Warnings from inspection
-- None
-
-## Items requiring manual review
-- The study appears to randomize a between-participant condition without a condition URL. Technical review is required so Console assignment controls the displayed condition.
+- A counterbalanced within-participant design was detected. Everyone receives extinction and survival; the Console will balance extinction_first versus survival_first.
 
 ## Required next steps
 1. Open and test the converted study locally.

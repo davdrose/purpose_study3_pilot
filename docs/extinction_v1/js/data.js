@@ -26,7 +26,7 @@
   }
 
   function resolvedOrder() {
-    const override = queryValue("order");
+    const override = (window.EXPLANATION_LAB_CONDITION || queryValue("order"));
     if (override === "extinction_first" || override === "survival_first") return override;
     return randomBit() === 0 ? "extinction_first" : "survival_first";
   }
