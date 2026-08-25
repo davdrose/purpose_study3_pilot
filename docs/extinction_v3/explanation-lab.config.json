@@ -1,0 +1,37 @@
+{
+  "format": "explanation-lab-study-config",
+  "manifestVersion": "1.2.0",
+  "schemaVersion": "2.0.0",
+  "convertedAt": "2026-08-25T14:51:55.865Z",
+  "sourceZip": "extinction_v14.zip",
+  "jsPsychVersion": "8.2.3",
+  "experimentVersion": "1.0.0",
+  "clientVersion": "1.5.0",
+  "assignmentType": "between_participant",
+  "launchAssignmentParameter": "condition",
+  "launchConditions": [
+    "extinction",
+    "survival"
+  ],
+  "conditions": [
+    "extinction",
+    "survival"
+  ],
+  "internalFactors": [],
+  "internalConditionCells": [],
+  "demographicsConfirmed": true,
+  "demographicFields": [
+    "age",
+    "ethnicity",
+    "gender",
+    "other_gender",
+    "other_race",
+    "race"
+  ],
+  "conversionOutcome": "ready",
+  "packageFingerprint": "6845e2f425aea563b675ade4341ccf41a289db51d213e96d1a1e3d103bfffff0",
+  "originalBackupPaths": [
+    "explanation-lab-original/index.html",
+    "explanation-lab-original/js/experiment.js"
+  ]
+}
