@@ -1,0 +1,39 @@
+{
+  "format": "explanation-lab-study-config",
+  "manifestVersion": "1.2.0",
+  "schemaVersion": "2.0.0",
+  "convertedAt": "2026-09-03T17:04:54.930Z",
+  "sourceZip": "pilot_v27.zip",
+  "jsPsychVersion": "8.3.0",
+  "experimentVersion": "fossil_pilot_v27",
+  "clientVersion": "1.5.1",
+  "assignmentType": "between_participant",
+  "launchAssignmentParameter": "condition",
+  "launchConditions": [
+    "dna_near_ember_purpose_near_marsh",
+    "purpose_near_ember_dna_near_marsh"
+  ],
+  "conditions": [
+    "dna_near_ember_purpose_near_marsh",
+    "purpose_near_ember_dna_near_marsh"
+  ],
+  "internalFactors": [],
+  "internalConditionCells": [],
+  "demographicsConfirmed": true,
+  "demographicFields": [
+    "age",
+    "ethnicity",
+    "gender",
+    "other_gender",
+    "other_race",
+    "race"
+  ],
+  "conversionOutcome": "ready",
+  "packageFingerprint": "b504143839342fe178a010df93b6f7ef1f9fc3f02de1baa4fed087f02940eb00",
+  "originalBackupPaths": [
+    "explanation-lab-original/index.html",
+    "explanation-lab-original/js/experiment.js",
+    "explanation-lab-original/js/plugins/fossil-speciation-trial.js",
+    "explanation-lab-original/js/stimuli.js"
+  ]
+}

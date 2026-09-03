@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 126" role="img" aria-labelledby="title desc">
+  <title id="title">Preserved Rellen fossil</title>
+  <desc id="desc">A fictional small quadruped fossil preserved in a pale stone slab.</desc>
+  <defs>
+    <linearGradient id="stone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8dfcd"/>
+      <stop offset="1" stop-color="#cfc1a7"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+  </defs>
+  <path fill="url(#stone)" stroke="#b3a389" stroke-width="2" d="M18 15 68 7l50 5 43-7 57 15 10 34-7 51-47 9-54-2-48 7-51-15-8-40z"/>
+  <g opacity=".18" fill="#8d7d65" filter="url(#soft)">
+    <ellipse cx="67" cy="94" rx="27" ry="7"/><ellipse cx="145" cy="93" rx="45" ry="8"/>
+  </g>
+  <g fill="none" stroke="#6d5c47" stroke-linecap="round" stroke-linejoin="round">
+    <path stroke-width="7" d="M62 66c17-24 60-29 91-11 10 6 20 9 32 8"/>
+    <path stroke-width="4" d="M72 66c-6 12-8 24-5 35M96 59c-2 14 0 27 7 39M138 57c4 13 3 26-3 40M158 62c8 10 12 20 11 31"/>
+    <path stroke-width="4" d="m65 101-12 4m50-7-10 7m42-8 12 6m22-10 12 4"/>
+    <path stroke-width="5" d="M185 63c15-7 26-3 30 5-7 6-17 8-29 3"/>
+    <circle cx="206" cy="66" r="2.4" fill="#6d5c47" stroke="none"/>
+    <path stroke-width="3" d="M62 65C47 52 38 47 28 53c9 0 15 4 20 11-9 0-16 4-21 10 14 2 25-1 35-9"/>
+    <path stroke-width="2.5" opacity=".65" d="M83 58v20m15-25v28m16-31v33m16-31v31m15-27v24M73 70l78-12M77 78l76-12"/>
+  </g>
+  <g fill="#7e6d56" opacity=".45">
+    <circle cx="44" cy="34" r="2"/><circle cx="192" cy="36" r="2.5"/><circle cx="198" cy="96" r="1.8"/><circle cx="38" cy="91" r="2.3"/>
+  </g>
+</svg>
