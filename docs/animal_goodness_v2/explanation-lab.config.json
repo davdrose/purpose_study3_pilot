@@ -1,0 +1,35 @@
+{
+  "format": "explanation-lab-study-config",
+  "manifestVersion": "1.2.0",
+  "schemaVersion": "2.0.0",
+  "convertedAt": "2026-09-03T15:59:20.151Z",
+  "sourceZip": "animal_goodness_v8.zip",
+  "jsPsychVersion": "8.2.3",
+  "experimentVersion": "1.0.0",
+  "clientVersion": "1.5.1",
+  "assignmentType": "single_group",
+  "launchAssignmentParameter": "condition",
+  "launchConditions": [
+    "animal"
+  ],
+  "conditions": [
+    "animal"
+  ],
+  "internalFactors": [],
+  "internalConditionCells": [],
+  "demographicsConfirmed": true,
+  "demographicFields": [
+    "age",
+    "ethnicity",
+    "gender",
+    "other_gender",
+    "other_race",
+    "race"
+  ],
+  "conversionOutcome": "ready",
+  "packageFingerprint": "dbbe5df38b2d67a4befdf3f315e4351dd340de4c38485809ba0441e887012001",
+  "originalBackupPaths": [
+    "explanation-lab-original/index.html",
+    "explanation-lab-original/js/experiment.js"
+  ]
+}
