@@ -1,0 +1,35 @@
+{
+  "format": "explanation-lab-study-config",
+  "manifestVersion": "1.2.0",
+  "schemaVersion": "2.0.0",
+  "convertedAt": "2026-09-03T13:40:45.772Z",
+  "sourceZip": "modal_strength_v4.zip",
+  "jsPsychVersion": "8.2.3",
+  "experimentVersion": "1.0.0",
+  "clientVersion": "1.5.1",
+  "assignmentType": "within_participant",
+  "launchAssignmentParameter": "condition",
+  "launchConditions": [
+    "mixed"
+  ],
+  "conditions": [
+    "mixed"
+  ],
+  "internalFactors": [],
+  "internalConditionCells": [],
+  "demographicsConfirmed": true,
+  "demographicFields": [
+    "age",
+    "ethnicity",
+    "gender",
+    "other_gender",
+    "other_race",
+    "race"
+  ],
+  "conversionOutcome": "ready",
+  "packageFingerprint": "f867ae0875e710bdd4aa77cfdb4cd223f939960ee3cce7a4127c30bb4dd04d0d",
+  "originalBackupPaths": [
+    "explanation-lab-original/index.html",
+    "explanation-lab-original/js/experiment.js"
+  ]
+}
