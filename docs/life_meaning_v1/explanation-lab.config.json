@@ -1,0 +1,35 @@
+{
+  "format": "explanation-lab-study-config",
+  "manifestVersion": "1.2.0",
+  "schemaVersion": "2.0.0",
+  "convertedAt": "2026-09-07T13:17:00.434Z",
+  "sourceZip": "life_meaning_v1.zip",
+  "jsPsychVersion": "8.2.3",
+  "experimentVersion": "1.0.0",
+  "clientVersion": "1.5.1",
+  "assignmentType": "single_group",
+  "launchAssignmentParameter": "condition",
+  "launchConditions": [
+    "mixed"
+  ],
+  "conditions": [
+    "mixed"
+  ],
+  "internalFactors": [],
+  "internalConditionCells": [],
+  "demographicsConfirmed": true,
+  "demographicFields": [
+    "age",
+    "ethnicity",
+    "gender",
+    "other_gender",
+    "other_race",
+    "race"
+  ],
+  "conversionOutcome": "ready",
+  "packageFingerprint": "0ddbf20e87ea214a7d10fae2c1e785bb8047422b57147d85ca817add04a6bf42",
+  "originalBackupPaths": [
+    "explanation-lab-original/index.html",
+    "explanation-lab-original/js/experiment.js"
+  ]
+}
